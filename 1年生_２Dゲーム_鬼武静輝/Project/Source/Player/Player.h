@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "DxLib.h"
 
-#define PLAYER_WIDTH (175.0f)
-#define PLAYER_HEIGHT (294.0f)
+#define PLAYER_WIDTH (40.0f)
+#define PLAYER_HEIGHT (60.0f)
 
 
 struct PlayerData 
