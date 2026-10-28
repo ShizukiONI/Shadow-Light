@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{1d7b5d9a-7395-44dc-b019-75f94c197481}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Map">
+      <UniqueIdentifier>{3320a8c4-4c97-4273-a366-723cd4e4af42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Player">
+      <UniqueIdentifier>{7d416a4d-65e9-4fea-9b5a-4685c1b99b29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Input">
+      <UniqueIdentifier>{0abb0bdf-dc18-4f43-b509-ede87af72d29}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Map\MapChip.cpp">
+      <Filter>Source\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Map\Block.cpp">
+      <Filter>Source\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Map\MapManager.cpp">
+      <Filter>Source\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Player\Player.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Input\Input.cpp">
+      <Filter>Source\Input</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Map\MapChip.h">
+      <Filter>Source\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Map\MapParameter.h">
+      <Filter>Source\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Map\MapManager.h">
+      <Filter>Source\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Map\Block.h">
+      <Filter>Source\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player\Player.h">
+      <Filter>Source\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Input\Input.h">
+      <Filter>Source\Input</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
