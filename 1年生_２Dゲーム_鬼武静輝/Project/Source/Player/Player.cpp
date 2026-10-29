@@ -5,46 +5,33 @@
 #include "../Map/Block.h"
 #include "../Animation/Animation.h"
 
+
+struct PlayerAnimationParam
+{
+    int interval;
+    int frameNum;
+    int width;
+    int height;
+};
+
+const PlayerAnimationParam PLAYER_ANIM_PARAM[PLAYER_ANIM_MAX] =
+{
+    { 20, 4, 65, 60 },    // 待機：画像読み込み時に設定
+    { 9, 8, 60, 60 },    // 走行：画像読み込み時に設定
+    { 1, 1, 0, 0 },    // ジャンプ
+    { 1, 1, 0, 0 },    // 落下
+    { 1, 1, 0, 0 },    // 着地
+};
+
+
 PlayerData g_PlayerData = { 0 };
+
+// このCPPでのみ使用する関数の宣言
+void StartPlayerAnimation(PlayerAnimationType anim);	// アニメーション再生
+void UpdatePlayerAnimation();							// アニメーション更新
 
 #define PLAYER_DEFAULT_POS_X 200.0f
 #define PLAYER_DEFAULT_POS_Y 200.0f
-
-
-static void SetPlayerAnimation(PlayerAnimationType type)
-{
-    if (g_PlayerData.playAnim == type)
-    {
-        return;
-    }
-
-    g_PlayerData.playAnim = type;
-
-    AnimationData* anim = &g_PlayerData.animation[type];
-
-    // アニメーションごとの画像サイズを維持する
-    int frameNum = anim->frameNum;
-    int width = anim->frameWidth;
-    int height = anim->frameHeight;
-    int interval = 1;
-
-    if (type == PLAYER_ANIM_RUN)
-    {
-        interval = 6;
-    }
-
-    StartAnimation(
-        anim,
-        g_PlayerData.posX,
-        g_PlayerData.posY,
-        interval,
-        frameNum,
-        width,
-        height,
-        true
-    );
-}
-
 
 void InitPlayer()
 {
@@ -70,49 +57,26 @@ void InitPlayer()
 
 void LoadPlayer()
 {
-    int idleImageWidth = 0;
-    int idleImageHeight = 0;
+    int idleImageWidth = 36;
+    int idleImageHeight = 60;
 
-    int runImageWidth = 0;
-    int runImageHeight = 0;
+    int runImageWidth = 32;
+    int runImageHeight = 60;
 
-    int idleImage = LoadGraph("Data/Player/DefaultPlayer.png");
-    int runImage = LoadGraph("Data/Player/PlayerRun.png");
-
-    if (idleImage == -1 || runImage == -1)
-    {
-        MessageBox(
-            nullptr,
-            "プレイヤー画像を読み込めませんでした。",
-            "画像読み込みエラー",
-            MB_OK
-        );
-        return;
-    }
-
-    GetGraphSize(idleImage, &idleImageWidth, &idleImageHeight);
-    GetGraphSize(runImage, &runImageWidth, &runImageHeight);
-
-    // 待機画像
-    g_PlayerData.animation[PLAYER_ANIM_IDLE].handle = idleImage;
-    g_PlayerData.animation[PLAYER_ANIM_IDLE].frameWidth = idleImageWidth;
-    g_PlayerData.animation[PLAYER_ANIM_IDLE].frameHeight = idleImageHeight;
-    g_PlayerData.animation[PLAYER_ANIM_IDLE].frameNum = 1;
-
-    // 走行画像（横一列に9コマある場合）
-    g_PlayerData.animation[PLAYER_ANIM_RUN].handle = runImage;
-    g_PlayerData.animation[PLAYER_ANIM_RUN].frameWidth = runImageWidth / 9;
-    g_PlayerData.animation[PLAYER_ANIM_RUN].frameHeight = runImageHeight;
-    g_PlayerData.animation[PLAYER_ANIM_RUN].frameNum = 9;
+    g_PlayerData.animation[PLAYER_ANIM_RUN].handle = LoadGraph("Data/Player/PlayerRunNeko3.png");
+    g_PlayerData.animation[PLAYER_ANIM_IDLE].handle = LoadGraph("Data/Player/PlayerIdle2.png");
+    g_PlayerData.animation[PLAYER_ANIM_JUMP].handle = LoadGraph("Data/Player/PlayerJump2.png");
+    g_PlayerData.animation[PLAYER_ANIM_FALL].handle = LoadGraph("Data/Player/PlayerFall2.png");
 }
 
 
 void StartPlayer()
 {
     g_PlayerData.active = true;
-    g_PlayerData.playAnim = PLAYER_ANIM_NONE;
 
-    SetPlayerAnimation(PLAYER_ANIM_IDLE);
+    // 待機アニメーションから開始する
+    StartPlayerAnimation(PLAYER_ANIM_IDLE);
+
 }
 
 void StepPlayer()
@@ -283,37 +247,9 @@ void UpdatePlayer()
 
     StepPlayer();
 
-    // アニメーション選択
-    if (g_PlayerData.isAir)
-    {
-        if (g_PlayerData.moveY < 0.0f)
-        {
-            SetPlayerAnimation(PLAYER_ANIM_JUMP);
-        }
-        else
-        {
-            SetPlayerAnimation(PLAYER_ANIM_FALL);
-        }
-    }
-    else if (g_PlayerData.moveX != 0.0f)
-    {
-        SetPlayerAnimation(PLAYER_ANIM_RUN);
-    }
-    else
-    {
-        SetPlayerAnimation(PLAYER_ANIM_IDLE);
-    }
-
-    // 現在のアニメーションを更新
-    AnimationData* anim =
-        &g_PlayerData.animation[g_PlayerData.playAnim];
-
-    // 描画座標をプレイヤーに合わせる
-    anim->posX = g_PlayerData.posX;
-    anim->posY = g_PlayerData.posY;
-
-    UpdateAnimation(anim);
+    UpdatePlayerAnimation();
 }
+
 
 void DrawPlayer()
 {
@@ -322,30 +258,10 @@ void DrawPlayer()
         return;
     }
 
-    AnimationData* anim =
-        &g_PlayerData.animation[g_PlayerData.playAnim];
-
-    if (!anim->active || anim->handle == -1)
-    {
-        return;
-    }
-
-    int frameX = anim->frameWidth * anim->nowFrame;
-
-    // 40×60のプレイヤーサイズに合わせて描画
-
-    DrawRectExtendGraph(
-        (int)g_PlayerData.posX,
-        (int)g_PlayerData.posY,
-        (int)(g_PlayerData.posX + PLAYER_WIDTH),
-        (int)(g_PlayerData.posY + PLAYER_HEIGHT),
-        frameX,
-        0,
-        frameX + anim->frameWidth,
-        anim->frameHeight,
-        anim->handle,
-        TRUE
-    );
+    // アニメーション描画でプレイヤーを描画する
+    PlayerAnimationType animType = g_PlayerData.playAnim;
+    AnimationData* animData = &g_PlayerData.animation[animType];
+    DrawAnimation(animData, g_PlayerData.posX, g_PlayerData.posY , g_PlayerData.isTurn);
 
 }
 
@@ -353,17 +269,66 @@ void FinPlayer()
 {
     for (int i = 0; i < PLAYER_ANIM_MAX; i++)
     {
-        int handle = g_PlayerData.animation[i].handle;
-
-        if (handle != -1 && handle != 0)
-        {
-            DeleteGraph(handle);
-            g_PlayerData.animation[i].handle = -1;
-        }
+        DeleteGraph(g_PlayerData.animation[i].handle);
     }
 }
 
 PlayerData GetPlayer()
 {
     return g_PlayerData;
+}
+
+
+void StartPlayerAnimation(PlayerAnimationType anim)
+{
+    // 再生中のアニメーションであれば何もしない
+    if (anim == g_PlayerData.playAnim) return;
+
+    // 再生中アニメーション設定
+    g_PlayerData.playAnim = anim;
+
+    // 再生に必要なデータを取得
+    AnimationData* animData = &g_PlayerData.animation[anim];
+    PlayerAnimationParam animParam = PLAYER_ANIM_PARAM[anim];
+
+    // アニメーション再生
+    StartAnimation(animData, g_PlayerData.posX, g_PlayerData.posY, animParam.interval, animParam.frameNum, animParam.width, animParam.height, true);
+}
+
+void UpdatePlayerAnimation()
+{
+    // 地上にいるか
+    if (!g_PlayerData.isAir)
+    {
+        // 横に移動していれば走っている
+        if (g_PlayerData.moveX < 0.0f || g_PlayerData.moveX > 0.0f)
+        {
+            // 走るアニメーション
+            StartPlayerAnimation(PLAYER_ANIM_RUN);
+        }
+        else
+        {
+            // 移動していなければ待機
+            StartPlayerAnimation(PLAYER_ANIM_IDLE);
+        }
+    }
+    // 空中にいる
+    else
+    {
+        // 上昇していればジャンプアニメーション
+        if (g_PlayerData.moveY < 0.0f)
+        {
+            StartPlayerAnimation(PLAYER_ANIM_JUMP);
+        }
+        // 下降していれば落下アニメーション
+        else if (g_PlayerData.moveY > 0.0f)
+        {
+            StartPlayerAnimation(PLAYER_ANIM_FALL);
+        }
+    }
+
+    // アニメーション更新
+    PlayerAnimationType animType = g_PlayerData.playAnim;
+    AnimationData* animData = &g_PlayerData.animation[animType];
+    UpdateAnimation(animData);
 }

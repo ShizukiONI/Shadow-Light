@@ -3,20 +3,18 @@
 
 void InitAnimation(AnimationData* animData)
 {
-    animData->active = false;
-    animData->isLoop = false;
-    animData->handle = -1;
-    animData->nowFrame = 0;
-    animData->frameNum = 0;
-    animData->frameWidth = 0;
-    animData->frameHeight = 0;
-    animData->timer = 0;
-    animData->interval = 0;
-    animData->posX = 0.0f;
-    animData->posY = 0.0f;
+	animData->active = false;
+	animData->handle = 0;
+	animData->nowFrame = 0;
+	animData->frameNum = 0;
+	animData->frameWidth = 0;
+	animData->frameHeight = 0;
+	animData->timer = 0;
+	animData->posX = 0.0f;
+	animData->posY = 0.0f;
 }
 
-void StartAnimation(AnimationData* animData,float posX,float posY,int interval,int frameNum,int width,int height,bool isLoop)
+void StartAnimation(AnimationData* animData, float posX, float posY, int interval, int frameNum, int width, int height, bool isLoop)
 {
 	// アクティブ
 	animData->active = true;
@@ -47,54 +45,51 @@ void StartAnimation(AnimationData* animData,float posX,float posY,int interval,i
 
 void UpdateAnimation(AnimationData* animData)
 {
-    // 再生中でなければ何もしない
-    if (!animData->active)
-    {
-        return;
-    }
+	if (!animData->active) return;
 
-    // タイマーが0になったら次のコマへ進む
-    if (animData->timer <= 0)
-    {
-        animData->nowFrame++;
-        animData->timer = animData->interval;
+	// 次のコマへ進めるか
+	if (animData->timer <= 0)
+	{
+		// 次のコマへ
+		animData->nowFrame++;
+		// タイマーリセット
+		animData->timer = animData->interval;
 
-        // 最後のコマまで再生した場合
-        if (animData->nowFrame >= animData->frameNum)
-        {
-            if (animData->isLoop)
-            {
-                // ループ再生なら最初のコマへ戻る
-                animData->nowFrame = 0;
-            }
-            else
-            {
-                // ループしない場合は再生終了
-                animData->active = false;
-                return;
-            }
-        }
-    }
+		// 全コマ表示し終わったら非アクティブ
+		if (animData->nowFrame >= animData->frameNum)
+		{
+			// ループするかどうか
+			if (animData->isLoop)
+			{
+				// 0コマ目に戻る
+				animData->nowFrame = 0;
+			}
+			else
+			{
+				// 終了
+				animData->active = false;
+			}
 
-    animData->timer--;
+			// これ以上処理する必要なし
+			return;
+		}
+	}
+
+	animData->timer--;
 }
 
-void DrawAnimation(AnimationData* animData,bool isTurnX,bool isTurnY)
+void DrawAnimation(AnimationData* animData, bool isTurnX, bool isTurnY)
 {
-    DrawAnimation(animData,animData->posX,animData->posY,isTurnX,isTurnY);
+	DrawAnimation(animData, animData->posX, animData->posY,isTurnX,isTurnY);
 }
 
-void DrawAnimation(AnimationData* animData,float posX,float posY,bool isTurnX,bool isTurnY)
+void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX, bool isTurnY)
 {
-    // アニメーションが再生中でなければ描画しない
-    if (!animData->active)
-    {
-        return;
-    }
+	if (!animData->active)return;
 
-    // 現在のコマの画像上のX座標を計算
-    int frameX = animData->frameWidth * animData->nowFrame;
+	// コマの切り取り位置計算（横１行の画像の想定）
+	int frameX = animData->frameWidth * animData->nowFrame;
 
-    // 現在のコマを描画
-    DrawRectGraph((int)posX,(int)posY,frameX,0,animData->frameWidth,animData->frameHeight,animData->handle,TRUE,isTurnX,isTurnY);
+	// 画像から表示するコマの部分だけ描画
+	DrawRectGraph((int)posX, (int)posY, frameX, 0, animData->frameWidth, animData->frameHeight, animData->handle, TRUE, isTurnX, isTurnY);
 }

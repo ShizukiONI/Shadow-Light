@@ -2,7 +2,7 @@
 #include "DxLib.h"
 #include "../Animation/Animation.h"
 
-#define PLAYER_WIDTH (40.0f)
+#define PLAYER_WIDTH (36.0f)
 #define PLAYER_HEIGHT (60.0f)
 
 enum PlayerAnimationType
