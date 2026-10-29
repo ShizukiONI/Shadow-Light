@@ -1,5 +1,4 @@
-﻿
-#include "DxLib.h"
+﻿#include "DxLib.h"
 #include "Player.h"
 #include "../Input/Input.h"
 #include "../Map/Block.h"
@@ -17,10 +16,10 @@ struct PlayerAnimationParam
 const PlayerAnimationParam PLAYER_ANIM_PARAM[PLAYER_ANIM_MAX] =
 {
     { 20, 4, 65, 60 },    // 待機：画像読み込み時に設定
-    { 9, 8, 60, 60 },    // 走行：画像読み込み時に設定
-    { 1, 1, 0, 0 },    // ジャンプ
-    { 1, 1, 0, 0 },    // 落下
-    { 1, 1, 0, 0 },    // 着地
+    { 9, 8, 64, 60 },    // 走行：画像読み込み時に設定
+    { 8, 4, 60, 60 },    // ジャンプ
+    { 8, 1, 50, 60 },    // 落下
+    { 1, 1, 60, 60 },    // 着地
 };
 
 

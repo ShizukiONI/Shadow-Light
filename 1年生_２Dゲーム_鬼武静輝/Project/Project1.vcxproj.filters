@@ -16,6 +16,9 @@
     <Filter Include="Source\Animation">
       <UniqueIdentifier>{7f21c2dd-8713-463a-a8e3-c8fdff3453da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Collision">
+      <UniqueIdentifier>{50053c6c-bdd8-4a59-851f-a6957419aa65}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
