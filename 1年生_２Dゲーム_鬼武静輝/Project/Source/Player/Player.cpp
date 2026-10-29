@@ -3,6 +3,7 @@
 #include "../Input/Input.h"
 #include "../Map/Block.h"
 #include "../Animation/Animation.h"
+#include "../Collision/Collision.h"
 
 
 struct PlayerAnimationParam
@@ -102,6 +103,7 @@ void StepPlayer()
     // X方向の移動先
     float afterX = g_PlayerData.posX + g_PlayerData.moveX;
 
+
     // 左右の壁との衝突判定
     for (int i = 0; i < BLOCK_MAX; i++)
     {
@@ -115,33 +117,38 @@ void StepPlayer()
         float blockRight = blockLeft + MAP_CHIP_WIDTH;
         float blockBottom = blockTop + MAP_CHIP_HEIGHT;
 
+        // 移動先のPlayerの当たり判定
         float playerLeft = afterX;
         float playerRight = afterX + PLAYER_WIDTH;
         float playerTop = g_PlayerData.posY;
         float playerBottom = playerTop + PLAYER_HEIGHT;
 
-        if (playerBottom > blockTop &&
-            playerTop < blockBottom)
-        {
-            // 右側の壁
-            if (g_PlayerData.moveX > 0.0f &&
-                g_PlayerData.posX + PLAYER_WIDTH <= blockLeft &&
-                playerRight > blockLeft &&
-                playerLeft < blockRight)
-            {
-                afterX = blockLeft - PLAYER_WIDTH;
-            }
+        // Collisionの共通関数で衝突を確認
+        bool isCollision = CheckCollisionBox(
+            playerLeft, playerTop,
+            playerRight, playerBottom,
+            blockLeft, blockTop,
+            blockRight, blockBottom
+        );
 
-            // 左側の壁
-            if (g_PlayerData.moveX < 0.0f &&
-                g_PlayerData.posX >= blockRight &&
-                playerLeft < blockRight &&
-                playerRight > blockLeft)
-            {
-                afterX = blockRight;
-            }
+        if (!isCollision)
+        {
+            continue;
+        }
+
+        // 右へ移動して壁に衝突した場合
+        if (g_PlayerData.moveX > 0.0f)
+        {
+            afterX = blockLeft - PLAYER_WIDTH;
+        }
+        // 左へ移動して壁に衝突した場合
+        else if (g_PlayerData.moveX < 0.0f)
+        {
+            afterX = blockRight;
         }
     }
+
+
 
     // 画面端の制限
     if (afterX < 0.0f)
@@ -153,6 +160,7 @@ void StepPlayer()
     {
         afterX = 1280.0f - PLAYER_WIDTH;
     }
+
 
     g_PlayerData.posX = afterX;
 
