@@ -5,6 +5,7 @@
 #include "../Animation/Animation.h"
 #include "../Collision/Collision.h"
 
+#define PLAYER_ATTACK_SIZE (20.0f)
 
 struct PlayerAnimationParam
 {
@@ -38,6 +39,10 @@ void InitPlayer()
     g_PlayerData.active = false;
     g_PlayerData.isTurn = false;
     g_PlayerData.isAir = true;
+
+    g_PlayerData.isAttack = false;
+    g_PlayerData.isAttackHit = false;
+    g_PlayerData.attackCoolTimer = 0;
 
     g_PlayerData.posX = PLAYER_DEFAULT_POS_X;
     g_PlayerData.posY = PLAYER_DEFAULT_POS_Y;
@@ -96,6 +101,34 @@ void StepPlayer()
     {
         g_PlayerData.moveX = g_PlayerData.speed;
         g_PlayerData.isTurn = false;
+    }
+
+    //攻撃
+    if (IsTriggerKey(KEY_INPUT_Z) && !g_PlayerData.isAttack && g_PlayerData.attackCoolTimer <= 0)
+    {
+        g_PlayerData.isAttack = true;
+        g_PlayerData.isAttackHit = false;
+        g_PlayerData.attackTimer = 6;
+
+        //クールタイム設定
+        g_PlayerData.attackCoolTimer = 20;
+    }
+
+    // 攻撃クールタイムを減らす
+    if (g_PlayerData.attackCoolTimer > 0)
+    {
+        g_PlayerData.attackCoolTimer--;
+    }
+
+    //攻撃時間の管理
+    if (g_PlayerData.isAttack)
+    {
+        g_PlayerData.attackTimer--;
+
+        if (g_PlayerData.attackTimer <= 0)
+        {
+            g_PlayerData.isAttack = false;
+        }
     }
 
     BlockData* blocks = GetBlocks();
@@ -243,6 +276,24 @@ void StepPlayer()
 
     g_PlayerData.posY = afterY;
     g_PlayerData.isAir = !onGround;
+
+    //攻撃位置の計算
+    if (g_PlayerData.isAttack)
+    {
+        float centerX = g_PlayerData.posX + PLAYER_WIDTH / 2.0f;
+        float centerY = g_PlayerData.posY + PLAYER_HEIGHT / 2.0f;
+
+        if (g_PlayerData.isTurn)
+        {
+            g_PlayerData.attackPos.x = centerX - PLAYER_WIDTH / 2.0f - PLAYER_ATTACK_SIZE / 2.0f;
+        }
+        else
+        {
+            g_PlayerData.attackPos.x = centerX + PLAYER_WIDTH / 2.0f + PLAYER_ATTACK_SIZE / 2.0f;
+        }
+
+        g_PlayerData.attackPos.y = centerY;
+    }
 }
 
 void UpdatePlayer()
@@ -268,7 +319,22 @@ void DrawPlayer()
     // アニメーション描画でプレイヤーを描画する
     PlayerAnimationType animType = g_PlayerData.playAnim;
     AnimationData* animData = &g_PlayerData.animation[animType];
-    DrawAnimation(animData, g_PlayerData.posX, g_PlayerData.posY , g_PlayerData.isTurn);
+    DrawAnimation(animData, g_PlayerData.posX, g_PlayerData.posY+8.0f , g_PlayerData.isTurn);
+
+    // 攻撃判定の表示（確認用）
+    if (g_PlayerData.isAttack)
+    {
+        float halfSize = PLAYER_ATTACK_SIZE / 2.0f;
+
+        DrawBox(
+            (int)(g_PlayerData.attackPos.x - halfSize),
+            (int)(g_PlayerData.attackPos.y - halfSize),
+            (int)(g_PlayerData.attackPos.x + halfSize),
+            (int)(g_PlayerData.attackPos.y + halfSize),
+            GetColor(0, 0, 0),
+            TRUE
+        );
+    }
 
 }
 
