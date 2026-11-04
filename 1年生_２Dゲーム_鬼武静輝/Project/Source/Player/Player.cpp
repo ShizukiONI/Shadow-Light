@@ -2,7 +2,7 @@
 #include "DxLib.h"
 #include "Player.h"
 #include "../Input/Input.h"
-#include "../Map/Block.h"
+#include "../Map/MapChip.h"
 #include "../Animation/Animation.h"
 
 
@@ -16,11 +16,11 @@ struct PlayerAnimationParam
 
 const PlayerAnimationParam PLAYER_ANIM_PARAM[PLAYER_ANIM_MAX] =
 {
-    { 20, 4, 65, 60 },    // 待機：画像読み込み時に設定
-    { 9, 8, 60, 60 },    // 走行：画像読み込み時に設定
-    { 8, 4, 67, 60 },    // ジャンプ
-    { 8, 5, 78, 60 },    // 落下
-    { 1, 1, 60, 60 },    // 着地
+    { 15, 4, 65, 60 }, // IDLE
+    { 9,  8, 64, 60 }, // RUN
+    { 8,  4, 67, 60 }, // JUMP
+    { 8,  1, 60, 60 }, // FALL
+    { 10, 1, 92, 60 }, // LANDING
 };
 
 
@@ -56,12 +56,6 @@ void InitPlayer()
 
 void LoadPlayer()
 {
-    int idleImageWidth = 36;
-    int idleImageHeight = 60;
-
-    int runImageWidth = 32;
-    int runImageHeight = 60;
-
     g_PlayerData.animation[PLAYER_ANIM_RUN].handle = LoadGraph("Data/Player/PlayerRunNeko3.png");
     g_PlayerData.animation[PLAYER_ANIM_IDLE].handle = LoadGraph("Data/Player/PlayerIdle2.png");
     g_PlayerData.animation[PLAYER_ANIM_JUMP].handle = LoadGraph("Data/Player/PlayerJump2.png");
@@ -77,6 +71,123 @@ void StartPlayer()
     // 待機アニメーションから開始する
     StartPlayerAnimation(PLAYER_ANIM_IDLE);
 
+}
+
+bool CheckPlayerBlockCollision(VECTOR playerPos, int mapX, int mapY)
+{
+    // マップ範囲外なら衝突しない
+    if (mapX < 0 || mapX >= MAP_CHIP_X_NUM ||
+        mapY < 0 || mapY >= MAP_CHIP_Y_NUM)
+    {
+        return false;
+    }
+
+    MapChipData chip = GetMapChipData(mapX, mapY);
+
+    // 空白マスなら衝突しない
+    if (chip.mapChip == MAP_CHIP_NONE)
+    {
+        return false;
+    }
+
+    float blockLeft = mapX * MAP_CHIP_WIDTH;
+    float blockTop = mapY * MAP_CHIP_HEIGHT;
+
+    float blockRight = blockLeft + MAP_CHIP_WIDTH;
+    float blockBottom = blockTop + MAP_CHIP_HEIGHT;
+
+    float playerLeft = playerPos.x +
+        (PLAYER_WIDTH - PLAYER_HIT_WIDTH) / 2.0f;
+
+    float playerTop = playerPos.y + 8.0f +
+        (PLAYER_HEIGHT - PLAYER_HIT_HEIGHT) / 2.0f;
+
+    float playerRight = playerLeft + PLAYER_HIT_WIDTH;
+    float playerBottom = playerTop + PLAYER_HIT_HEIGHT;
+
+    return (
+        playerRight > blockLeft &&
+        playerLeft < blockRight &&
+        playerBottom > blockTop &&
+        playerTop < blockBottom
+        );
+}
+
+float CheckPlayerCollisionX(float nextX, float playerY)
+{
+    float hitX = (PLAYER_WIDTH - PLAYER_HIT_WIDTH) / 2.0f;
+    float hitY = 8.0f + (PLAYER_HEIGHT - PLAYER_HIT_HEIGHT) / 2.0f;
+
+    int startX = (int)((nextX + hitX) / MAP_CHIP_WIDTH);
+    int endX = (int)((nextX + hitX + PLAYER_HIT_WIDTH - 1) / MAP_CHIP_WIDTH);
+
+    int startY = (int)((playerY + hitY) / MAP_CHIP_HEIGHT);
+    int endY = (int)((playerY + hitY + PLAYER_HIT_HEIGHT - 1) / MAP_CHIP_HEIGHT);
+
+    for (int y = startY; y <= endY; y++)
+    {
+        for (int x = startX; x <= endX; x++)
+        {
+            if (!CheckPlayerBlockCollision(
+                VGet(nextX, playerY, 0.0f), x, y))
+            {
+                continue;
+            }
+
+            float hitX = (PLAYER_WIDTH - PLAYER_HIT_WIDTH) / 2.0f;
+
+            if (nextX > g_PlayerData.pos.x)
+            {
+                // 右方向の衝突
+                return x * MAP_CHIP_WIDTH - PLAYER_HIT_WIDTH - hitX;
+            }
+            else if (nextX < g_PlayerData.pos.x)
+            {
+                // 左方向の衝突
+                return (x + 1) * MAP_CHIP_WIDTH - hitX;
+            }
+        }
+    }
+
+    return nextX;
+}
+
+
+float CheckPlayerCollisionY(float nextY, float playerX)
+{
+    float hitX = (PLAYER_WIDTH - PLAYER_HIT_WIDTH) / 2.0f;
+    float hitY = 8.0f + (PLAYER_HEIGHT - PLAYER_HIT_HEIGHT) / 2.0f;
+
+    int startX = (int)((playerX + hitX) / MAP_CHIP_WIDTH);
+    int endX = (int)((playerX + hitX + PLAYER_HIT_WIDTH - 1) / MAP_CHIP_WIDTH);
+
+    int startY = (int)((nextY + hitY) / MAP_CHIP_HEIGHT);
+    int endY = (int)((nextY + hitY + PLAYER_HIT_HEIGHT - 0.001f) / MAP_CHIP_HEIGHT);
+
+    for (int y = startY; y <= endY; y++)
+    {
+        for (int x = startX; x <= endX; x++)
+        {
+            if (!CheckPlayerBlockCollision(
+                VGet(playerX, nextY, 0.0f), x, y))
+            {
+                continue;
+            }
+
+            if (nextY > g_PlayerData.pos.y)
+            {
+                // 下方向の衝突
+                return y * MAP_CHIP_HEIGHT - PLAYER_HIT_HEIGHT - hitY;
+            }
+            else if (nextY < g_PlayerData.pos.y)
+            {
+                // 上方向の衝突
+                return (y + 1) * MAP_CHIP_HEIGHT - hitY;
+            }
+        }
+    }
+
+    return nextY;
 }
 
 void StepPlayer()
@@ -98,51 +209,10 @@ void StepPlayer()
         g_PlayerData.isTurn = false;
     }
 
-    BlockData* blocks = GetBlocks();
 
     // X方向の移動先
     float afterX = g_PlayerData.pos.x + g_PlayerData.moveX;
 
-    // 左右の壁との衝突判定
-    for (int i = 0; i < BLOCK_MAX; i++)
-    {
-        if (!blocks[i].active)
-        {
-            continue;
-        }
-
-        float blockLeft = blocks[i].pos.x;
-        float blockTop = blocks[i].pos.y;
-        float blockRight = blockLeft + MAP_CHIP_WIDTH;
-        float blockBottom = blockTop + MAP_CHIP_HEIGHT;
-
-        float playerLeft = afterX;
-        float playerRight = afterX + PLAYER_WIDTH;
-        float playerTop = g_PlayerData.pos.y;
-        float playerBottom = playerTop + PLAYER_HEIGHT;
-
-        if (playerBottom > blockTop &&
-            playerTop < blockBottom)
-        {
-            // 右側の壁
-            if (g_PlayerData.moveX > 0.0f &&
-                g_PlayerData.pos.x + PLAYER_WIDTH <= blockLeft &&
-                playerRight > blockLeft &&
-                playerLeft < blockRight)
-            {
-                afterX = blockLeft - PLAYER_WIDTH;
-            }
-
-            // 左側の壁
-            if (g_PlayerData.moveX < 0.0f &&
-                g_PlayerData.pos.x >= blockRight &&
-                playerLeft < blockRight &&
-                playerRight > blockLeft)
-            {
-                afterX = blockRight;
-            }
-        }
-    }
 
     // 画面端の制限
     if (afterX < 0.0f)
@@ -154,6 +224,9 @@ void StepPlayer()
     {
         afterX = 1280.0f - PLAYER_WIDTH;
     }
+
+
+    afterX = CheckPlayerCollisionX(afterX, g_PlayerData.pos.y);
 
     g_PlayerData.pos.x = afterX;
 
@@ -169,82 +242,42 @@ void StepPlayer()
     g_PlayerData.moveY += 0.5f;
 
     float beforeY = g_PlayerData.pos.y;
-    float afterY = beforeY + g_PlayerData.moveY;
+    float nextY = beforeY + g_PlayerData.moveY;
 
-    // 頭の衝突判定
-    if (g_PlayerData.moveY < 0.0f)
-    {
-        for (int i = 0; i < BLOCK_MAX; i++)
-        {
-            if (!blocks[i].active)
-            {
-                continue;
-            }
+    float afterY = CheckPlayerCollisionY(
+        nextY, g_PlayerData.pos.x
+    );
 
-            float blockLeft = blocks[i].pos.x;
-            float blockTop = blocks[i].pos.y;
-            float blockRight = blockLeft + MAP_CHIP_WIDTH;
-            float blockBottom = blockTop + MAP_CHIP_HEIGHT;
-
-            float playerLeft = g_PlayerData.pos.x;
-            float playerRight = playerLeft + PLAYER_WIDTH;
-
-            if (playerRight > blockLeft &&
-                playerLeft < blockRight &&
-                beforeY >= blockBottom &&
-                afterY <= blockBottom)
-            {
-                afterY = blockBottom;
-                g_PlayerData.moveY = 0.0f;
-                break;
-            }
-        }
-    }
-
-    // 着地判定
     bool onGround = false;
 
-    for (int i = 0; i < BLOCK_MAX; i++)
+    // 落下中で、かつ実際に上に押し戻された（または床にぶつかった）場合
+    if (g_PlayerData.moveY > 0.0f && afterY != nextY)
     {
-        if (!blocks[i].active)
-        {
-            continue;
-        }
-
-        float blockLeft = blocks[i].pos.x;
-        float blockTop = blocks[i].pos.y;
-        float blockRight = blockLeft + MAP_CHIP_WIDTH;
-
-        float playerLeft = g_PlayerData.pos.x;
-        float playerRight = playerLeft + PLAYER_WIDTH;
-
-        float beforeBottom = beforeY + PLAYER_HEIGHT;
-        float afterBottom = afterY + PLAYER_HEIGHT;
-
-        if (g_PlayerData.moveY >= 0.0f &&
-            playerRight > blockLeft &&
-            playerLeft < blockRight &&
-            beforeBottom <= blockTop &&
-            afterBottom >= blockTop)
-        {
-            afterY = blockTop - PLAYER_HEIGHT;
-            g_PlayerData.moveY = 0.0f;
-            onGround = true;
-            break;
-        }
+        onGround = true;
+        g_PlayerData.moveY = 0.0f;
+    }
+    else if (afterY < nextY)
+    {
+        g_PlayerData.moveY = 0.0f;
+    }
+    else if (afterY > nextY)
+    {
+        // 上方向の衝突
+        g_PlayerData.moveY = 0.0f;
     }
 
+    // 衝突前の空中状態を保存
     bool wasAir = g_PlayerData.isAir;
 
     g_PlayerData.pos.y = afterY;
     g_PlayerData.isAir = !onGround;
 
-    //着地アニメーション
     if (wasAir && onGround)
     {
         StartPlayerAnimation(PLAYER_ANIM_LANDING);
     }
 }
+
 
 void UpdatePlayer()
 {
@@ -266,10 +299,36 @@ void DrawPlayer()
         return;
     }
 
+    /// 当たり判定を可視化
+    float hitX = g_PlayerData.pos.x +
+        (PLAYER_WIDTH - PLAYER_HIT_WIDTH) / 2.0f;
+
+    float hitY = g_PlayerData.pos.y + 8.0f +
+        (PLAYER_HEIGHT - PLAYER_HIT_HEIGHT) / 2.0f;
+
+    DrawBox(
+        (int)hitX,
+        (int)hitY,
+        (int)(hitX + PLAYER_HIT_WIDTH),
+        (int)(hitY + PLAYER_HIT_HEIGHT),
+        GetColor(255, 0, 0),
+        FALSE
+    );
+
     // アニメーション描画でプレイヤーを描画する
+    if (g_PlayerData.playAnim == PLAYER_ANIM_NONE)
+    {
+        return;
+    }
+
     PlayerAnimationType animType = g_PlayerData.playAnim;
     AnimationData* animData = &g_PlayerData.animation[animType];
-    DrawAnimation(animData, g_PlayerData.pos.x, g_PlayerData.pos.y + 8.0f , g_PlayerData.isTurn);
+
+    float drawX = g_PlayerData.pos.x +
+        (PLAYER_WIDTH - animData->frameWidth) / 2.0f;
+
+    DrawAnimation(animData, drawX,
+        g_PlayerData.pos.y + 8.0f, g_PlayerData.isTurn);
 
 }
 
@@ -302,10 +361,24 @@ void StartPlayerAnimation(PlayerAnimationType anim)
 
     // 再生に必要なデータを取得
     AnimationData* animData = &g_PlayerData.animation[anim];
+
+    // フレームをリセット
+    animData->nowFrame = 0;
+    animData->timer = 0;
+
     PlayerAnimationParam animParam = PLAYER_ANIM_PARAM[anim];
 
     // アニメーション再生
-    StartAnimation(animData, g_PlayerData.pos.x, g_PlayerData.pos.y, animParam.interval, animParam.frameNum, animParam.width, animParam.height, true);
+    StartAnimation(
+        animData,
+        g_PlayerData.pos.x,
+        g_PlayerData.pos.y,
+        animParam.interval,
+        animParam.frameNum,
+        animParam.width,
+        animParam.height,
+        anim != PLAYER_ANIM_LANDING
+    );
 }
 
 void UpdatePlayerAnimation()
@@ -316,10 +389,9 @@ void UpdatePlayerAnimation()
         AnimationData* animData =
             &g_PlayerData.animation[PLAYER_ANIM_LANDING];
 
-        animData->timer++;
-
-        if (animData->timer < 10)
+        if (animData->active)
         {
+            UpdateAnimation(animData);
             return;
         }
 
@@ -359,6 +431,11 @@ void UpdatePlayerAnimation()
 
     // アニメーション更新
     PlayerAnimationType animType = g_PlayerData.playAnim;
-    AnimationData* animData = &g_PlayerData.animation[animType];
-    UpdateAnimation(animData);
+
+    if (animType != PLAYER_ANIM_NONE)
+    {
+        AnimationData* animData = &g_PlayerData.animation[animType];
+
+        UpdateAnimation(animData);
+    }
 }

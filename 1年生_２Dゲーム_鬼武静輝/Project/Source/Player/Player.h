@@ -2,8 +2,13 @@
 #include "DxLib.h"
 #include "../Animation/Animation.h"
 
-#define PLAYER_WIDTH (36.0f)
+//プレイヤーの実際のサイズ
+#define PLAYER_WIDTH (65.0f)
 #define PLAYER_HEIGHT (60.0f)
+
+// プレイヤーの当たり判定サイズ
+#define PLAYER_HIT_WIDTH  (30.0f)
+#define PLAYER_HIT_HEIGHT (48.0f)
 
 enum PlayerAnimationType
 {
