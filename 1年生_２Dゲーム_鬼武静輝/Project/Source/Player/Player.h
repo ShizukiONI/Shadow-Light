@@ -23,8 +23,7 @@ struct PlayerData
 	bool active;	//有効フラグ
 	bool isTurn;	//左を向いているか
 	bool isAir; //空中にいるかどうか
-	float posX;		//X座標
-	float posY;		//Y座標
+	VECTOR pos;	//プレイヤー座標
 	float moveX;	//X移動量
 	float moveY;	//Y移動量
 	float speed;	//移動速度

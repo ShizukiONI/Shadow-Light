@@ -18,9 +18,9 @@ const PlayerAnimationParam PLAYER_ANIM_PARAM[PLAYER_ANIM_MAX] =
 {
     { 20, 4, 65, 60 },    // 待機：画像読み込み時に設定
     { 9, 8, 60, 60 },    // 走行：画像読み込み時に設定
-    { 1, 1, 0, 0 },    // ジャンプ
-    { 1, 1, 0, 0 },    // 落下
-    { 1, 1, 0, 0 },    // 着地
+    { 8, 4, 67, 60 },    // ジャンプ
+    { 8, 5, 78, 60 },    // 落下
+    { 1, 1, 60, 60 },    // 着地
 };
 
 
@@ -39,8 +39,7 @@ void InitPlayer()
     g_PlayerData.isTurn = false;
     g_PlayerData.isAir = true;
 
-    g_PlayerData.posX = PLAYER_DEFAULT_POS_X;
-    g_PlayerData.posY = PLAYER_DEFAULT_POS_Y;
+    g_PlayerData.pos = VGet(PLAYER_DEFAULT_POS_X, PLAYER_DEFAULT_POS_Y, 0.0f);
 
     g_PlayerData.moveX = 0.0f;
     g_PlayerData.moveY = 0.0f;
@@ -67,6 +66,7 @@ void LoadPlayer()
     g_PlayerData.animation[PLAYER_ANIM_IDLE].handle = LoadGraph("Data/Player/PlayerIdle2.png");
     g_PlayerData.animation[PLAYER_ANIM_JUMP].handle = LoadGraph("Data/Player/PlayerJump2.png");
     g_PlayerData.animation[PLAYER_ANIM_FALL].handle = LoadGraph("Data/Player/PlayerFall2.png");
+    g_PlayerData.animation[PLAYER_ANIM_LANDING].handle = LoadGraph("Data/Player/Tyakuti2.png");
 }
 
 
@@ -101,7 +101,7 @@ void StepPlayer()
     BlockData* blocks = GetBlocks();
 
     // X方向の移動先
-    float afterX = g_PlayerData.posX + g_PlayerData.moveX;
+    float afterX = g_PlayerData.pos.x + g_PlayerData.moveX;
 
     // 左右の壁との衝突判定
     for (int i = 0; i < BLOCK_MAX; i++)
@@ -118,7 +118,7 @@ void StepPlayer()
 
         float playerLeft = afterX;
         float playerRight = afterX + PLAYER_WIDTH;
-        float playerTop = g_PlayerData.posY;
+        float playerTop = g_PlayerData.pos.y;
         float playerBottom = playerTop + PLAYER_HEIGHT;
 
         if (playerBottom > blockTop &&
@@ -126,7 +126,7 @@ void StepPlayer()
         {
             // 右側の壁
             if (g_PlayerData.moveX > 0.0f &&
-                g_PlayerData.posX + PLAYER_WIDTH <= blockLeft &&
+                g_PlayerData.pos.x + PLAYER_WIDTH <= blockLeft &&
                 playerRight > blockLeft &&
                 playerLeft < blockRight)
             {
@@ -135,7 +135,7 @@ void StepPlayer()
 
             // 左側の壁
             if (g_PlayerData.moveX < 0.0f &&
-                g_PlayerData.posX >= blockRight &&
+                g_PlayerData.pos.x >= blockRight &&
                 playerLeft < blockRight &&
                 playerRight > blockLeft)
             {
@@ -155,7 +155,7 @@ void StepPlayer()
         afterX = 1280.0f - PLAYER_WIDTH;
     }
 
-    g_PlayerData.posX = afterX;
+    g_PlayerData.pos.x = afterX;
 
     // ジャンプ
     if (IsInputKey(KEY_INPUT_SPACE) &&
@@ -168,7 +168,7 @@ void StepPlayer()
     // 重力
     g_PlayerData.moveY += 0.5f;
 
-    float beforeY = g_PlayerData.posY;
+    float beforeY = g_PlayerData.pos.y;
     float afterY = beforeY + g_PlayerData.moveY;
 
     // 頭の衝突判定
@@ -186,7 +186,7 @@ void StepPlayer()
             float blockRight = blockLeft + MAP_CHIP_WIDTH;
             float blockBottom = blockTop + MAP_CHIP_HEIGHT;
 
-            float playerLeft = g_PlayerData.posX;
+            float playerLeft = g_PlayerData.pos.x;
             float playerRight = playerLeft + PLAYER_WIDTH;
 
             if (playerRight > blockLeft &&
@@ -215,7 +215,7 @@ void StepPlayer()
         float blockTop = blocks[i].pos.y;
         float blockRight = blockLeft + MAP_CHIP_WIDTH;
 
-        float playerLeft = g_PlayerData.posX;
+        float playerLeft = g_PlayerData.pos.x;
         float playerRight = playerLeft + PLAYER_WIDTH;
 
         float beforeBottom = beforeY + PLAYER_HEIGHT;
@@ -234,8 +234,16 @@ void StepPlayer()
         }
     }
 
-    g_PlayerData.posY = afterY;
+    bool wasAir = g_PlayerData.isAir;
+
+    g_PlayerData.pos.y = afterY;
     g_PlayerData.isAir = !onGround;
+
+    //着地アニメーション
+    if (wasAir && onGround)
+    {
+        StartPlayerAnimation(PLAYER_ANIM_LANDING);
+    }
 }
 
 void UpdatePlayer()
@@ -261,7 +269,7 @@ void DrawPlayer()
     // アニメーション描画でプレイヤーを描画する
     PlayerAnimationType animType = g_PlayerData.playAnim;
     AnimationData* animData = &g_PlayerData.animation[animType];
-    DrawAnimation(animData, g_PlayerData.posX, g_PlayerData.posY , g_PlayerData.isTurn);
+    DrawAnimation(animData, g_PlayerData.pos.x, g_PlayerData.pos.y + 8.0f , g_PlayerData.isTurn);
 
 }
 
@@ -287,16 +295,38 @@ void StartPlayerAnimation(PlayerAnimationType anim)
     // 再生中アニメーション設定
     g_PlayerData.playAnim = anim;
 
+    if (anim == PLAYER_ANIM_LANDING)
+    {
+        g_PlayerData.animation[PLAYER_ANIM_LANDING].timer = 0;
+    }
+
     // 再生に必要なデータを取得
     AnimationData* animData = &g_PlayerData.animation[anim];
     PlayerAnimationParam animParam = PLAYER_ANIM_PARAM[anim];
 
     // アニメーション再生
-    StartAnimation(animData, g_PlayerData.posX, g_PlayerData.posY, animParam.interval, animParam.frameNum, animParam.width, animParam.height, true);
+    StartAnimation(animData, g_PlayerData.pos.x, g_PlayerData.pos.y, animParam.interval, animParam.frameNum, animParam.width, animParam.height, true);
 }
 
 void UpdatePlayerAnimation()
 {
+    // 着地アニメーション中
+    if (g_PlayerData.playAnim == PLAYER_ANIM_LANDING)
+    {
+        AnimationData* animData =
+            &g_PlayerData.animation[PLAYER_ANIM_LANDING];
+
+        animData->timer++;
+
+        if (animData->timer < 10)
+        {
+            return;
+        }
+
+        // 着地アニメーション終了
+        g_PlayerData.playAnim = PLAYER_ANIM_NONE;
+    }
+
     // 地上にいるか
     if (!g_PlayerData.isAir)
     {
