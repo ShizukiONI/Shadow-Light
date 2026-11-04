@@ -30,7 +30,7 @@ PlayerData g_PlayerData = { 0 };
 void StartPlayerAnimation(PlayerAnimationType anim);	// アニメーション再生
 void UpdatePlayerAnimation();							// アニメーション更新
 
-#define PLAYER_DEFAULT_POS_X 200.0f
+#define PLAYER_DEFAULT_POS_X 100.0f
 #define PLAYER_DEFAULT_POS_Y 200.0f
 
 void InitPlayer()
@@ -276,6 +276,34 @@ void StepPlayer()
     {
         StartPlayerAnimation(PLAYER_ANIM_LANDING);
     }
+
+    //攻撃
+    if (IsTriggerKey(KEY_INPUT_Z) &&
+        !g_PlayerData.isAttack &&
+        g_PlayerData.attackcoolTimer <= 0)
+    {
+        g_PlayerData.isAttack = true;
+        g_PlayerData.isAttackHit = false;
+        g_PlayerData.attackTimer = 6;
+        g_PlayerData.attackcoolTimer = 20;
+    }
+
+    //攻撃タイマー
+    if (g_PlayerData.attackTimer > 0)
+    {
+        g_PlayerData.attackTimer--;
+
+        if (g_PlayerData.attackTimer <= 0)
+        {
+            g_PlayerData.isAttack = false;
+        }
+    }
+
+    //攻撃クールタイム
+    if (g_PlayerData.attackcoolTimer > 0)
+    {
+        g_PlayerData.attackcoolTimer--;
+    }
 }
 
 
@@ -314,6 +342,31 @@ void DrawPlayer()
         GetColor(255, 0, 0),
         FALSE
     );
+
+    // 攻撃エフェクト
+    if (g_PlayerData.isAttack)
+    {
+        float attackX = g_PlayerData.pos.x;
+        float attackY = g_PlayerData.pos.y + 20.0f;
+
+        if (g_PlayerData.isTurn)
+        {
+            attackX -= MAP_CHIP_WIDTH;
+        }
+        else
+        {
+            attackX += PLAYER_WIDTH;
+        }
+
+        DrawBox(
+            (int)attackX,
+            (int)attackY,
+            (int)(attackX + MAP_CHIP_WIDTH),
+            (int)(attackY + MAP_CHIP_HEIGHT),
+            GetColor(0, 0, 0),
+            TRUE
+        );
+    }
 
     // アニメーション描画でプレイヤーを描画する
     if (g_PlayerData.playAnim == PLAYER_ANIM_NONE)

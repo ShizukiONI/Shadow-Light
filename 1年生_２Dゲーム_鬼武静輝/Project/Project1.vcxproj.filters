@@ -19,6 +19,9 @@
     <Filter Include="Source\Collision">
       <UniqueIdentifier>{50053c6c-bdd8-4a59-851f-a6957419aa65}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\World">
+      <UniqueIdentifier>{31ff87fb-b04d-4ab0-863d-de5608e43f37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -45,6 +48,9 @@
     <ClCompile Include="Source\Collision\Collision.cpp">
       <Filter>Source\Collision</Filter>
     </ClCompile>
+    <ClCompile Include="Source\World\World.cpp">
+      <Filter>Source\World</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Map\MapChip.h">
@@ -70,6 +76,9 @@
     </ClInclude>
     <ClInclude Include="Source\Collision\Collision.h">
       <Filter>Source\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\World\World.h">
+      <Filter>Source\World</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

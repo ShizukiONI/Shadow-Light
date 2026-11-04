@@ -33,6 +33,12 @@ struct PlayerData
 	float moveY;	//Y移動量
 	float speed;	//移動速度
 
+	//攻撃
+	bool isAttack;
+	bool isAttackHit;
+	int attackTimer;
+	int attackcoolTimer;
+
 	// アニメーション管理
 	AnimationData animation[PLAYER_ANIM_MAX];
 	PlayerAnimationType playAnim;
