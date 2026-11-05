@@ -22,6 +22,7 @@ const PlayerAnimationParam PLAYER_ANIM_PARAM[PLAYER_ANIM_MAX] =
     { 8,  4, 67, 60 }, // JUMP
     { 8,  1, 60, 60 }, // FALL
     { 10, 1, 92, 60 }, // LANDING
+    { 10, 1, 80, 60 }, //ATTACK
 };
 
 
@@ -79,6 +80,10 @@ void LoadPlayer()
     g_PlayerData.animation[PLAYER_ANIM_LANDING].handle = LoadGraph("Data/Player/Tyakuti2.png");
     g_PlayerData.animation[PLAYER_ANIM_LANDING].invertedhandle = LoadGraph("Data/Player/Tyakuti2.png");
     GraphFilter(g_PlayerData.animation[PLAYER_ANIM_LANDING].invertedhandle, DX_GRAPH_FILTER_INVERT);
+
+    g_PlayerData.animation[PLAYER_ANIM_ATTACK].handle = LoadGraph("Data/Player/Attack2.png");
+    g_PlayerData.animation[PLAYER_ANIM_ATTACK].invertedhandle = LoadGraph("Data/Player/Attack2.png");
+    GraphFilter(g_PlayerData.animation[PLAYER_ANIM_ATTACK].invertedhandle, DX_GRAPH_FILTER_INVERT);
 
 }
 
@@ -303,6 +308,8 @@ void StepPlayer()
         g_PlayerData.attackcoolTimer <= 0)
     {
         g_PlayerData.isAttack = true;
+        StartPlayerAnimation(PLAYER_ANIM_ATTACK);
+
         g_PlayerData.isAttackHit = false;
         g_PlayerData.attackTimer = 6;
         g_PlayerData.attackcoolTimer = 20;
@@ -363,30 +370,7 @@ void DrawPlayer()
         FALSE
     );
 
-    // 攻撃エフェクト
-    if (g_PlayerData.isAttack)
-    {
-        float attackX = g_PlayerData.pos.x;
-        float attackY = g_PlayerData.pos.y + 20.0f;
-
-        if (g_PlayerData.isTurn)
-        {
-            attackX -= MAP_CHIP_WIDTH;
-        }
-        else
-        {
-            attackX += PLAYER_WIDTH;
-        }
-
-        DrawBox(
-            (int)attackX,
-            (int)attackY,
-            (int)(attackX + MAP_CHIP_WIDTH),
-            (int)(attackY + MAP_CHIP_HEIGHT),
-            GetColor(0, 0, 0),
-            TRUE
-        );
-    }
+    
 
     // アニメーション描画でプレイヤーを描画する
     if (g_PlayerData.playAnim == PLAYER_ANIM_NONE)
@@ -457,12 +441,28 @@ void StartPlayerAnimation(PlayerAnimationType anim)
         animParam.frameNum,
         animParam.width,
         animParam.height,
-        anim != PLAYER_ANIM_LANDING
+        anim != PLAYER_ANIM_LANDING &&
+        anim != PLAYER_ANIM_ATTACK
     );
 }
 
 void UpdatePlayerAnimation()
 {
+
+    // 攻撃アニメーション中
+    if (g_PlayerData.isAttack)
+    {
+        AnimationData* animData =
+            &g_PlayerData.animation[PLAYER_ANIM_ATTACK];
+
+        if (animData->active)
+        {
+            UpdateAnimation(animData);
+        }
+
+        return;
+    }
+
     // 着地アニメーション中
     if (g_PlayerData.playAnim == PLAYER_ANIM_LANDING)
     {
