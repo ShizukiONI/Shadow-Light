@@ -5,6 +5,7 @@ struct AnimationData
 	bool active;
 	bool isLoop;
 	int handle;
+	int invertedhandle;
 	int nowFrame;
 	int frameNum;
 	int frameWidth;

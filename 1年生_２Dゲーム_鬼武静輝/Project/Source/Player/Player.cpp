@@ -58,10 +58,28 @@ void InitPlayer()
 void LoadPlayer()
 {
     g_PlayerData.animation[PLAYER_ANIM_RUN].handle = LoadGraph("Data/Player/PlayerRunNeko3.png");
+    g_PlayerData.animation[PLAYER_ANIM_RUN].invertedhandle = LoadGraph("Data/Player/PlayerRunNeko3.png");
+    GraphFilter(g_PlayerData.animation[PLAYER_ANIM_RUN].invertedhandle, DX_GRAPH_FILTER_INVERT);
+    
+
     g_PlayerData.animation[PLAYER_ANIM_IDLE].handle = LoadGraph("Data/Player/PlayerIdle2.png");
+    g_PlayerData.animation[PLAYER_ANIM_IDLE].invertedhandle = LoadGraph("Data/Player/PlayerIdle2.png");
+    GraphFilter(g_PlayerData.animation[PLAYER_ANIM_IDLE].invertedhandle, DX_GRAPH_FILTER_INVERT);
+
     g_PlayerData.animation[PLAYER_ANIM_JUMP].handle = LoadGraph("Data/Player/PlayerJump2.png");
+    g_PlayerData.animation[PLAYER_ANIM_JUMP].invertedhandle = LoadGraph("Data/Player/PlayerJump2.png");
+    GraphFilter(g_PlayerData.animation[PLAYER_ANIM_JUMP].invertedhandle, DX_GRAPH_FILTER_INVERT);
+
+
     g_PlayerData.animation[PLAYER_ANIM_FALL].handle = LoadGraph("Data/Player/PlayerFall2.png");
+    g_PlayerData.animation[PLAYER_ANIM_FALL].invertedhandle = LoadGraph("Data/Player/PlayerFall2.png");
+    GraphFilter(g_PlayerData.animation[PLAYER_ANIM_FALL].invertedhandle, DX_GRAPH_FILTER_INVERT);
+
+
     g_PlayerData.animation[PLAYER_ANIM_LANDING].handle = LoadGraph("Data/Player/Tyakuti2.png");
+    g_PlayerData.animation[PLAYER_ANIM_LANDING].invertedhandle = LoadGraph("Data/Player/Tyakuti2.png");
+    GraphFilter(g_PlayerData.animation[PLAYER_ANIM_LANDING].invertedhandle, DX_GRAPH_FILTER_INVERT);
+
 }
 
 
@@ -378,6 +396,13 @@ void DrawPlayer()
 
     PlayerAnimationType animType = g_PlayerData.playAnim;
     AnimationData* animData = &g_PlayerData.animation[animType];
+
+    int drawhandle = animData->handle;
+
+    if (g_WorldType == WORLD_SHADOW)
+    {
+        drawhandle = animData->invertedhandle;
+    }
 
     float drawX = g_PlayerData.pos.x +
         (PLAYER_WIDTH - animData->frameWidth) / 2.0f;

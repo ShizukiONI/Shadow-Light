@@ -1,5 +1,6 @@
 ﻿#include "DxLib.h"
 #include "Animation.h"
+#include "../World/World.h"
 
 void InitAnimation(AnimationData* animData)
 {
@@ -91,5 +92,15 @@ void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX
 	int frameX = animData->frameWidth * animData->nowFrame;
 
 	// 画像から表示するコマの部分だけ描画
-	DrawRectGraph((int)posX, (int)posY, frameX, 0, animData->frameWidth, animData->frameHeight, animData->handle, TRUE, isTurnX, isTurnY);
+	int drawHandle = animData->handle;
+
+	// 影の世界なら反転画像を使用
+	if (g_WorldType == WORLD_SHADOW)
+	{
+		drawHandle = animData->invertedhandle;
+	}
+
+	DrawRectGraph((int)posX, (int)posY, frameX, 0,
+		animData->frameWidth, animData->frameHeight,
+		drawHandle, TRUE, isTurnX, isTurnY);
 }
