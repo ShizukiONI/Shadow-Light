@@ -3,6 +3,7 @@
 #include "../Source/Map/Block.h"
 #include "Input/Input.h"
 #include "Player/Player.h"
+#include "../Source/World/World.h"
 
 //プログラムの初めはWinMainから始まります
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstamce, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
@@ -19,6 +20,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstamce, _
     InitMap();
     InitInput();
     InitPlayer();
+    InitWorld();
 
     LoadPlayer();
     LoadMap();
@@ -34,9 +36,18 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstamce, _
 
         UpdateInput();
         UpdatePlayer();
+        UpdateWorld();
 
-        DrawBox(0, 0, 1280, 720,
-            GetColor(255, 255, 255), TRUE);
+        if (g_WorldType == WORLD_LIGHT)
+        {
+            DrawBox(0, 0, 1280, 720,
+                GetColor(255, 255, 255), TRUE);
+        }
+        else
+        {
+            DrawBox(0, 0, 1280, 720,
+                GetColor(0, 0, 0), TRUE);
+        }
 
         if (CheckHitKey(KEY_INPUT_ESCAPE))
         {

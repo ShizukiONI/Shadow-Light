@@ -1,4 +1,5 @@
 ﻿#include "Block.h"
+#include "../World/World.h"
 //#include "../Camera/Camera.h"
 
 BlockData g_Blocks[BLOCK_MAX] = { 0 };
@@ -12,13 +13,14 @@ void InitBlock()
 	{
 		block->active = false;
 		block->pos = VGet(0.0f, 0.0f, 0.0f);
-		block->type = MAP_CHIP_NONE;
+		block->world = WORLD_LIGHT;
 	}
 }
 
 void LoadBlock()
 {
 	g_BlockHandle[NORMAL_BLOCK] = LoadGraph("Data/Map/MapBlock.png");
+	g_BlockHandle[SHADOW_BLOCK] = LoadGraph("Data/Map/MapBlock.png");
 }
 
 void StartBlock()
@@ -31,15 +33,37 @@ void StepBlock()
 
 void DrawBlock()
 {
-	//// スクロールのためカメラを取得
-	//CameraData camera = GetCamera();
-
 	BlockData* block = g_Blocks;
+
 	for (int i = 0; i < BLOCK_MAX; i++, block++)
 	{
-		if (block->active)
+		if (block->active && block->world == g_WorldType)
 		{
-			DrawGraph((int)(block->pos.x), (int)(block->pos.y), block->handle, TRUE);
+			if (block->type == NORMAL_BLOCK)
+			{
+				// 光の世界：黒いブロック
+				SetDrawBright(0, 0, 0);
+
+				DrawGraph(
+					(int)block->pos.x,
+					(int)block->pos.y,
+					block->handle,
+					TRUE
+				);
+
+				// 明るさを元に戻す
+				SetDrawBright(255, 255, 255);
+			}
+			else if (block->type == SHADOW_BLOCK)
+			{
+				// 影の世界：白いブロック
+				DrawGraph(
+					(int)block->pos.x,
+					(int)block->pos.y,
+					block->handle,
+					TRUE
+				);
+			}
 		}
 	}
 }
@@ -61,6 +85,16 @@ BlockData* CreateBlock(MapChipType type, VECTOR pos)
 			block->handle = g_BlockHandle[type];
 			block->pos = pos;
 			block->type = type;
+
+			if (type == NORMAL_BLOCK)
+			{
+				block->world = WORLD_LIGHT;
+			}
+			else if (type == SHADOW_BLOCK)
+			{
+				block->world = WORLD_SHADOW;
+			}
+
 			return block;
 		}
 	}

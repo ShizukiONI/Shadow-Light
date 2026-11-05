@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "DxLib.h"
+#include "../World/World.h"
 
 #define BLOCK_MAX 1024
 #define MAP_CHIP_X_NUM (64)
@@ -11,6 +12,7 @@ enum MapChipType
 {
 	MAP_CHIP_NONE,
 	NORMAL_BLOCK,
+	SHADOW_BLOCK,
 	BLOCK_TYPE_MAX,
 };
 
@@ -19,6 +21,7 @@ struct BlockData
 	bool active;
 	int handle;
 	MapChipType type;
+	WorldType world;
 	VECTOR pos;
 };
 

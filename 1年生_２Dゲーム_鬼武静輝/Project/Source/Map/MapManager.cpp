@@ -13,13 +13,15 @@ void InitMap()
 
 void LoadMap()
 {
-	LoadMapChipData();
+	LoadMapChipData(WORLD_LIGHT);
+	LoadMapChipData(WORLD_SHADOW);
 	LoadBlock();
 }
 
 void StartMap()
 {
-	CreateMap();
+	CreateMap(WORLD_LIGHT);
+	CreateMap(WORLD_SHADOW);
 }
 
 void DrawMap()

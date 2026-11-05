@@ -4,6 +4,7 @@
 #include "../Input/Input.h"
 #include "../Map/MapChip.h"
 #include "../Animation/Animation.h"
+#include "../World/World.h"
 
 
 struct PlayerAnimationParam
@@ -82,10 +83,11 @@ bool CheckPlayerBlockCollision(VECTOR playerPos, int mapX, int mapY)
         return false;
     }
 
-    MapChipData chip = GetMapChipData(mapX, mapY);
+    MapChipData chip = GetMapChipData(mapX, mapY,g_WorldType);
 
-    // 空白マスなら衝突しない
-    if (chip.mapChip == MAP_CHIP_NONE)
+    //現在の世界と違うブロックなら衝突しない
+    if (chip.data == nullptr ||
+        chip.data->world != g_WorldType)
     {
         return false;
     }
