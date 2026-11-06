@@ -4,6 +4,7 @@
 #include "Input/Input.h"
 #include "Player/Player.h"
 #include "../Source/World/World.h"
+#include "../Source/Camera/Camera.h"
 
 //プログラムの初めはWinMainから始まります
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstamce, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
@@ -21,6 +22,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstamce, _
     InitInput();
     InitPlayer();
     InitWorld();
+    InitCamera();
 
     LoadPlayer();
     LoadMap();
@@ -37,6 +39,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstamce, _
         UpdateInput();
         UpdatePlayer();
         UpdateWorld();
+        StepCamera();
 
         if (g_WorldType == WORLD_LIGHT)
         {

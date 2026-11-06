@@ -5,6 +5,7 @@
 #include "../Map/MapChip.h"
 #include "../Animation/Animation.h"
 #include "../World/World.h"
+#include "../Camera/Camera.h"
 
 
 struct PlayerAnimationParam
@@ -354,6 +355,8 @@ void DrawPlayer()
         return;
     }
 
+    CameraData camera = GetCamera();
+
     /// 当たり判定を可視化
     float hitX = g_PlayerData.pos.x +
         (PLAYER_WIDTH - PLAYER_HIT_WIDTH) / 2.0f;
@@ -362,10 +365,10 @@ void DrawPlayer()
         (PLAYER_HEIGHT - PLAYER_HIT_HEIGHT) / 2.0f;
 
     DrawBox(
-        (int)hitX,
-        (int)hitY,
-        (int)(hitX + PLAYER_HIT_WIDTH),
-        (int)(hitY + PLAYER_HIT_HEIGHT),
+        (int)hitX - camera.pos.x,
+        (int)hitY - camera.pos.y,
+        (int)(hitX + PLAYER_HIT_WIDTH - camera.pos.x),
+        (int)(hitY + PLAYER_HIT_HEIGHT - camera.pos.y),
         GetColor(255, 0, 0),
         FALSE
     );
@@ -391,8 +394,7 @@ void DrawPlayer()
     float drawX = g_PlayerData.pos.x +
         (PLAYER_WIDTH - animData->frameWidth) / 2.0f;
 
-    DrawAnimation(animData, drawX,
-        g_PlayerData.pos.y + 8.0f, g_PlayerData.isTurn);
+    DrawAnimation(animData, drawX - camera.pos.x ,g_PlayerData.pos.y - camera.pos.y + 8.0f , g_PlayerData.isTurn);
 
 }
 
