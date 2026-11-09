@@ -34,7 +34,7 @@ void StartPlayerAnimation(PlayerAnimationType anim);	// アニメーション再
 void UpdatePlayerAnimation();							// アニメーション更新
 
 #define PLAYER_DEFAULT_POS_X 100.0f
-#define PLAYER_DEFAULT_POS_Y 200.0f
+#define PLAYER_DEFAULT_POS_Y 900.0f
 
 void InitPlayer()
 {
@@ -238,19 +238,6 @@ void StepPlayer()
 
     // X方向の移動先
     float afterX = g_PlayerData.pos.x + g_PlayerData.moveX;
-
-
-    // 画面端の制限
-    if (afterX < 0.0f)
-    {
-        afterX = 0.0f;
-    }
-
-    if (afterX > 1280.0f - PLAYER_WIDTH)
-    {
-        afterX = 1280.0f - PLAYER_WIDTH;
-    }
-
 
     afterX = CheckPlayerCollisionX(afterX, g_PlayerData.pos.y);
 

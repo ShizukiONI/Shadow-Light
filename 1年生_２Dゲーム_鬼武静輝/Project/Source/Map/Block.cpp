@@ -1,6 +1,6 @@
-﻿#include "Block.h"
+﻿ #include "Block.h"
 #include "../World/World.h"
-//#include "../Camera/Camera.h"
+#include "../Camera/Camera.h"
 
 BlockData g_Blocks[BLOCK_MAX] = { 0 };
 int g_BlockHandle[BLOCK_TYPE_MAX] = { 0 };
@@ -35,6 +35,8 @@ void DrawBlock()
 {
 	BlockData* block = g_Blocks;
 
+	CameraData camera = GetCamera();
+
 	for (int i = 0; i < BLOCK_MAX; i++, block++)
 	{
 		if (block->active && block->world == g_WorldType)
@@ -45,8 +47,8 @@ void DrawBlock()
 				SetDrawBright(0, 0, 0);
 
 				DrawGraph(
-					(int)block->pos.x,
-					(int)block->pos.y,
+					(int)block->pos.x - camera.pos.x,
+					(int)block->pos.y - camera.pos.y,
 					block->handle,
 					TRUE
 				);
@@ -58,8 +60,8 @@ void DrawBlock()
 			{
 				// 影の世界：白いブロック
 				DrawGraph(
-					(int)block->pos.x,
-					(int)block->pos.y,
+					(int)block->pos.x - camera.pos.x,
+					(int)block->pos.y - camera.pos.y,
 					block->handle,
 					TRUE
 				);
