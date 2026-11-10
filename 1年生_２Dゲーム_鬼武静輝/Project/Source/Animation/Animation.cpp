@@ -6,6 +6,7 @@ void InitAnimation(AnimationData* animData)
 {
 	animData->active = false;
 	animData->handle = 0;
+	animData->invertedhandle = 0;
 	animData->nowFrame = 0;
 	animData->frameNum = 0;
 	animData->frameWidth = 0;

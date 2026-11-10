@@ -44,7 +44,7 @@ void InitPlayer()
 
     g_PlayerData.moveX = 0.0f;
     g_PlayerData.moveY = 0.0f;
-    g_PlayerData.speed = 4.0f;
+    g_PlayerData.speed = 5.0f;
 
     for (int i = 0; i < PLAYER_ANIM_MAX; i++)
     {
@@ -281,11 +281,6 @@ void StartPlayerAnimation(PlayerAnimationType anim)
     // 再生中アニメーション設定
     g_PlayerData.playAnim = anim;
 
-    if (anim == PLAYER_ANIM_LANDING)
-    {
-        g_PlayerData.animation[PLAYER_ANIM_LANDING].timer = 0;
-    }
-
     // 再生に必要なデータを取得
     AnimationData* animData = &g_PlayerData.animation[anim];
 
@@ -346,7 +341,7 @@ void UpdatePlayerAnimation()
     if (!g_PlayerData.isAir)
     {
         // 横に移動していれば走っている
-        if (g_PlayerData.moveX < 0.0f || g_PlayerData.moveX > 0.0f)
+        if (g_PlayerData.moveX != 0.0f)
         {
             // 走るアニメーション
             StartPlayerAnimation(PLAYER_ANIM_RUN);
