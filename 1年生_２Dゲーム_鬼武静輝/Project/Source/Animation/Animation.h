@@ -20,6 +20,6 @@ void InitAnimation(AnimationData* animData);
 void UpdateAnimation(AnimationData* animData);
 void DrawAnimation(AnimationData* animData, bool isTurnX = false, bool isTurnY = false);
 void DrawAnimation(AnimationData* animData, float posX, float posY,
-	bool isTurnX = false, bool isTurnY = false);
+	bool isTurnX = false, bool isTurnY = false, float zoom = 1.0f);
 void StartAnimation(AnimationData* animData, float posX, float posY,
 	int interval, int frameNum, int width, int height, bool isLoop);

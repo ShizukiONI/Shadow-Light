@@ -232,10 +232,10 @@ void DrawPlayer()
         (PLAYER_HEIGHT - PLAYER_HIT_HEIGHT) / 2.0f;
 
     DrawBox(
-        (int)hitX - camera.pos.x,
-        (int)hitY - camera.pos.y,
-        (int)(hitX + PLAYER_HIT_WIDTH - camera.pos.x),
-        (int)(hitY + PLAYER_HIT_HEIGHT - camera.pos.y),
+        (int)((hitX - camera.pos.x) * CAMERA_ZOOM),
+        (int)((hitY - camera.pos.y) * CAMERA_ZOOM),
+        (int)((hitX + PLAYER_HIT_WIDTH - camera.pos.x) * CAMERA_ZOOM),
+        (int)((hitY + PLAYER_HIT_HEIGHT - camera.pos.y) * CAMERA_ZOOM),
         GetColor(255, 0, 0),
         FALSE
     );
@@ -254,7 +254,9 @@ void DrawPlayer()
     float drawX = g_PlayerData.pos.x +
         (PLAYER_WIDTH - animData->frameWidth) / 2.0f;
 
-    DrawAnimation(animData, drawX - camera.pos.x ,g_PlayerData.pos.y - camera.pos.y + 8.0f , g_PlayerData.isTurn);
+    DrawAnimation(animData, (drawX - camera.pos.x) * CAMERA_ZOOM ,
+        (g_PlayerData.pos.y - camera.pos.y + 8.0f) * CAMERA_ZOOM ,
+        g_PlayerData.isTurn, false,CAMERA_ZOOM);
 
 }
 

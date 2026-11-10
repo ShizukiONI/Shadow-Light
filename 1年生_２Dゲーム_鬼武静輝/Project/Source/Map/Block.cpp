@@ -33,43 +33,51 @@ void StepBlock()
 
 void DrawBlock()
 {
-	BlockData* block = g_Blocks;
+    BlockData* block = g_Blocks;
 
-	CameraData camera = GetCamera();
+    CameraData camera = GetCamera();
 
-	for (int i = 0; i < BLOCK_MAX; i++, block++)
-	{
-		if (block->active && block->world == g_WorldType)
-		{
-			if (block->type == NORMAL_BLOCK)
-			{
-				// 光の世界：黒いブロック
-				SetDrawBright(0, 0, 0);
+    for (int i = 0; i < BLOCK_MAX; i++, block++)
+    {
+        if (block->active && block->world == g_WorldType)
+        {
+            int drawX = (int)((block->pos.x - camera.pos.x) * CAMERA_ZOOM);
+            int drawY = (int)((block->pos.y - camera.pos.y) * CAMERA_ZOOM);
 
-				DrawGraph(
-					(int)block->pos.x - camera.pos.x,
-					(int)block->pos.y - camera.pos.y,
-					block->handle,
-					TRUE
-				);
+            int width = (int)(MAP_CHIP_WIDTH * CAMERA_ZOOM);
+            int height = (int)(MAP_CHIP_HEIGHT * CAMERA_ZOOM);
 
-				// 明るさを元に戻す
-				SetDrawBright(255, 255, 255);
-			}
-			else if (block->type == SHADOW_BLOCK)
-			{
-				// 影の世界：白いブロック
-				DrawGraph(
-					(int)block->pos.x - camera.pos.x,
-					(int)block->pos.y - camera.pos.y,
-					block->handle,
-					TRUE
-				);
-			}
-		}
-	}
+            if (block->type == NORMAL_BLOCK)
+            {
+                // 光の世界：黒いブロック
+                SetDrawBright(0, 0, 0);
+
+                DrawExtendGraph(
+                    drawX,
+                    drawY,
+                    drawX + width,
+                    drawY + height,
+                    block->handle,
+                    TRUE
+                );
+
+                SetDrawBright(255, 255, 255);
+            }
+            else if (block->type == SHADOW_BLOCK)
+            {
+                // 影の世界：白いブロック
+                DrawExtendGraph(
+                    drawX,
+                    drawY,
+                    drawX + width,
+                    drawY + height,
+                    block->handle,
+                    TRUE
+                );
+            }
+        }
+    }
 }
-
 void FinBlock()
 {
 }

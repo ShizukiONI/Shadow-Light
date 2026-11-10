@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "DxLib.h"
 
+#define CAMERA_ZOOM (1.5f)
+
 // カメラ情報
 struct CameraData
 {

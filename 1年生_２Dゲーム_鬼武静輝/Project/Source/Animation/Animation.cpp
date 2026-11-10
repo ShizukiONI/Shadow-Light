@@ -1,6 +1,7 @@
 ﻿#include "DxLib.h"
 #include "Animation.h"
 #include "../World/World.h"
+#include "../Camera/Camera.h"
 
 void InitAnimation(AnimationData* animData)
 {
@@ -82,10 +83,10 @@ void UpdateAnimation(AnimationData* animData)
 
 void DrawAnimation(AnimationData* animData, bool isTurnX, bool isTurnY)
 {
-	DrawAnimation(animData, animData->posX, animData->posY,isTurnX,isTurnY);
+	DrawAnimation(animData, animData->posX, animData->posY,isTurnX,isTurnY,1.0f);
 }
 
-void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX, bool isTurnY)
+void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX, bool isTurnY,float zoom)
 {
 	if (!animData->active)return;
 
@@ -101,7 +102,33 @@ void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX
 		drawHandle = animData->invertedhandle;
 	}
 
-	DrawRectGraph((int)posX, (int)posY, frameX, 0,
-		animData->frameWidth, animData->frameHeight,
-		drawHandle, TRUE, isTurnX, isTurnY);
+	int x1 = (int)posX;
+	int y1 = (int)posY;
+	int x2 = (int)(posX + animData->frameWidth * zoom);
+	int y2 = (int)(posY + animData->frameHeight * zoom);
+
+	// 左右反転
+	if (isTurnX)
+	{
+		int temp = x1;
+		x1 = x2;
+		x2 = temp;
+	}
+
+	// 上下反転
+	if (isTurnY)
+	{
+		int temp = y1;
+		y1 = y2;
+		y2 = temp;
+	}
+
+	DrawRectExtendGraph(
+		x1, y1, x2, y2,
+		frameX, 0,
+		animData->frameWidth,
+		animData->frameHeight,
+		drawHandle,
+		TRUE
+	);
 }

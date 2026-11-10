@@ -23,12 +23,16 @@ void StepCamera()
 
     GetScreenState(&screenWidth, &screenHeight, &colorBitDepth);
 
+    //画面のズーム
+    float viewWidth = screenWidth / CAMERA_ZOOM;
+    float viewHeight = screenHeight / CAMERA_ZOOM;
+
     // プレイヤーが画面中央に来るようにする
     g_CameraData.pos.x =
-        player.pos.x + PLAYER_WIDTH / 2.0f - screenWidth / 2.0f;
+        player.pos.x + PLAYER_WIDTH / 2.0f - viewWidth / 2.0f;
 
     g_CameraData.pos.y =
-        player.pos.y + PLAYER_HEIGHT / 2.0f - screenHeight / 2.0f;
+        player.pos.y + PLAYER_HEIGHT / 2.0f - viewHeight / 2.0f;
 
     // カメラがマップの左端を超えないようにする
     if (g_CameraData.pos.x < 0.0f)
@@ -39,17 +43,17 @@ void StepCamera()
     // カメラがマップの右端を超えないようにする
     float mapWidth = MAP_CHIP_X_NUM * MAP_CHIP_WIDTH;
 
-    if (g_CameraData.pos.x > mapWidth - screenWidth)
+    if (g_CameraData.pos.x > mapWidth - viewWidth)
     {
-        g_CameraData.pos.x = mapWidth - screenWidth;
+        g_CameraData.pos.x = mapWidth - viewWidth;
     }
 
     // カメラがマップの下端を超えないようにする
     float mapHeight = MAP_CHIP_Y_NUM * MAP_CHIP_HEIGHT;
 
-    if (g_CameraData.pos.y > mapHeight - screenHeight)
+    if (g_CameraData.pos.y > mapHeight - viewHeight)
     {
-        g_CameraData.pos.y = mapHeight - screenHeight;
+        g_CameraData.pos.y = mapHeight - viewHeight;
     }
 }
 
