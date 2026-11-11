@@ -39,45 +39,81 @@ void DrawBlock()
 
     for (int i = 0; i < BLOCK_MAX; i++, block++)
     {
-        if (block->active && block->world == g_WorldType)
+        if (block->active)
         {
+            bool isCurrentWorld = (block->world == g_WorldType);
+
             int drawX = (int)((block->pos.x - camera.pos.x) * CAMERA_ZOOM);
             int drawY = (int)((block->pos.y - camera.pos.y) * CAMERA_ZOOM);
 
             int width = (int)(MAP_CHIP_WIDTH * CAMERA_ZOOM);
             int height = (int)(MAP_CHIP_HEIGHT * CAMERA_ZOOM);
 
-            if (block->type == NORMAL_BLOCK)
+            if (isCurrentWorld)
             {
-                // 光の世界：黒いブロック
-                SetDrawBright(0, 0, 0);
+                if (block->type == NORMAL_BLOCK)
+                {
+                    // 光の世界：黒いブロック
+                    SetDrawBright(0, 0, 0);
 
-                DrawExtendGraph(
-                    drawX,
-                    drawY,
-                    drawX + width,
-                    drawY + height,
-                    block->handle,
-                    TRUE
-                );
+                    DrawExtendGraph(
+                        drawX,
+                        drawY,
+                        drawX + width,
+                        drawY + height,
+                        block->handle,
+                        TRUE
+                    );
 
-                SetDrawBright(255, 255, 255);
+                    SetDrawBright(255, 255, 255);
+                }
+                else if (block->type == SHADOW_BLOCK)
+                {
+                    // 影の世界：白いブロック
+                    DrawExtendGraph(
+                        drawX,
+                        drawY,
+                        drawX + width,
+                        drawY + height,
+                        block->handle,
+                        TRUE
+                    );
+                }
             }
-            else if (block->type == SHADOW_BLOCK)
+            else
             {
-                // 影の世界：白いブロック
-                DrawExtendGraph(
+                // 反対世界：薄い輪郭だけ表示
+                int outlineColor;
+
+                if (block->type == NORMAL_BLOCK)
+                {
+                    // 黒いブロックには薄い白色の輪郭
+                    outlineColor = GetColor(255, 255, 255);
+                }
+                else
+                {
+                    // 白いブロックには薄い黒色の輪郭
+                    outlineColor = GetColor(0, 0, 0);
+                }
+
+                SetDrawBlendMode(DX_BLENDMODE_ALPHA, 13);
+
+                DrawBox(
                     drawX,
                     drawY,
                     drawX + width,
                     drawY + height,
-                    block->handle,
-                    TRUE
+                    outlineColor,
+                    FALSE
                 );
+
+                // 透明度をリセット
+                SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
             }
         }
     }
 }
+
 void FinBlock()
 {
 }

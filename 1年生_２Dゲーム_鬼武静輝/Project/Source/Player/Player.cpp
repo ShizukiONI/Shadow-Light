@@ -21,7 +21,7 @@ const PlayerAnimationParam PLAYER_ANIM_PARAM[PLAYER_ANIM_MAX] =
     { 8,  4, 67, 60 }, // JUMP
     { 8,  1, 60, 60 }, // FALL
     { 10, 1, 92, 60 }, // LANDING
-    { 10, 1, 80, 60 }, //ATTACK
+    { 15, 1, 80, 60 }, //ATTACK
 };
 
 
