@@ -4,6 +4,9 @@
 
 WorldType g_WorldType = WORLD_LIGHT;
 
+int g_WorldEffectTimer = 0;
+
+
 //初期化
 void InitWorld()
 {
@@ -25,8 +28,11 @@ void ChangeWorld()
 
 void UpdateWorld()
 {
-	if (IsTriggerKey(KEY_INPUT_X))
+	if (g_WorldEffectTimer == 0)
 	{
-		ChangeWorld();
+		if (IsTriggerKey(KEY_INPUT_X))
+		{
+			ChangeWorld();
+		}
 	}
 }

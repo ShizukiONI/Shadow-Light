@@ -12,3 +12,5 @@ extern WorldType g_WorldType;
 void InitWorld();
 void ChangeWorld();
 void UpdateWorld();
+void UpdateWorldEffect();
+void DrawWorldEffect();
