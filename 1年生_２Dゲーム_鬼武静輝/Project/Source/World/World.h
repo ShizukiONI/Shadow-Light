@@ -8,6 +8,8 @@ enum WorldType
 };
 
 extern WorldType g_WorldType;
+extern WorldType g_WorldBeforeEffect;
+extern WorldType g_WorldAfterEffect;
 
 void InitWorld();
 void ChangeWorld();
