@@ -25,6 +25,9 @@
     <Filter Include="Source\Camera">
       <UniqueIdentifier>{305fc7a7-3370-43b7-9b57-50cee0aaabf2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Enemy">
+      <UniqueIdentifier>{b950acc7-8ff4-4d71-a4dd-d965b4c8ea04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -57,6 +60,9 @@
     <ClCompile Include="Source\Camera\Camera.cpp">
       <Filter>Source\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Enemy\EnemyA.cpp">
+      <Filter>Source\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Map\MapChip.h">
@@ -88,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="Source\Camera\Camera.h">
       <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enemy\EnemyA.h">
+      <Filter>Source\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
