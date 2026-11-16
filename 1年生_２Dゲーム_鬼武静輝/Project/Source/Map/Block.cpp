@@ -43,6 +43,7 @@ void DrawBlock()
         {
             bool isCurrentWorld = (block->world == g_WorldType);
 
+
             int drawX = (int)((block->pos.x - camera.pos.x) * CAMERA_ZOOM);
             int drawY = (int)((block->pos.y - camera.pos.y) * CAMERA_ZOOM);
 
@@ -56,14 +57,7 @@ void DrawBlock()
                     // 光の世界：黒いブロック
                     SetDrawBright(0, 0, 0);
 
-                    DrawExtendGraph(
-                        drawX,
-                        drawY,
-                        drawX + width,
-                        drawY + height,
-                        block->handle,
-                        TRUE
-                    );
+                    DrawExtendGraph(drawX,drawY,drawX + width,drawY + height,block->handle,TRUE);
 
                     SetDrawBright(255, 255, 255);
                 }

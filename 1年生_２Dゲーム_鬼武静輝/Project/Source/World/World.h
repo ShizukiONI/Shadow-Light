@@ -8,11 +8,17 @@ enum WorldType
 };
 
 extern WorldType g_WorldType;
+extern int g_WorldEffectTimer;
 extern WorldType g_WorldBeforeEffect;
 extern WorldType g_WorldAfterEffect;
+
+extern int g_WorldBeforeScreen;
+extern int g_WorldAfterScreen;
+extern float g_WorldEffectX;
 
 void InitWorld();
 void ChangeWorld();
 void UpdateWorld();
 void UpdateWorldEffect();
-void DrawWorldEffect();
+void DrawWorldBackGround(WorldType world);
+bool IsWorldEffectPassed(float scrrenX);
