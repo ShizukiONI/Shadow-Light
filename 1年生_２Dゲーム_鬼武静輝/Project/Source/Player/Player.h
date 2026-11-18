@@ -12,7 +12,6 @@
 
 enum PlayerAnimationType
 {
-
 	PLAYER_ANIM_IDLE,
 	PLAYER_ANIM_RUN,
 	PLAYER_ANIM_JUMP,
