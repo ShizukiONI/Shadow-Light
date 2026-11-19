@@ -5,8 +5,8 @@
 #define ENEMY_MAX (100)
 #define ENEMY_MAP_MAX (100)
 
-#define ENEMY_WIDTH (30)
-#define ENEMY_HEIGHT (30)
+#define ENEMY_WIDTH (100)
+#define ENEMY_HEIGHT (100)
 #define ENEMY_HIT_WIDTH (20)
 #define ENEMY_HIT_HEIGHT (20)
 

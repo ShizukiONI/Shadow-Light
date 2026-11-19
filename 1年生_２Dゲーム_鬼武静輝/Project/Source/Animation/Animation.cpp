@@ -12,6 +12,7 @@ void InitAnimation(AnimationData* animData)
 	animData->frameNum = 0;
 	animData->frameWidth = 0;
 	animData->frameHeight = 0;
+	animData->columNum = 1;
 	animData->timer = 0;
 	animData->posX = 0.0f;
 	animData->posY = 0.0f;
@@ -37,6 +38,8 @@ void StartAnimation(AnimationData* animData, float posX, float posY, int interva
 
 	// コマ数
 	animData->frameNum = frameNum;
+
+	animData->columNum = frameNum;
 
 	// 1コマのサイズ
 	animData->frameWidth = width;
@@ -86,12 +89,15 @@ void DrawAnimation(AnimationData* animData, bool isTurnX, bool isTurnY)
 	DrawAnimation(animData, animData->posX, animData->posY,isTurnX,isTurnY,1.0f);
 }
 
-void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX, bool isTurnY,float zoom)
+void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX, bool isTurnY,float zoomX,float zoomY)
 {
 	if (!animData->active)return;
 
-	// コマの切り取り位置計算（横１行の画像の想定）
-	int frameX = animData->frameWidth * animData->nowFrame;
+	//// コマの切り取り位置計算（横１行の画像の想定）
+	//int frameX = animData->frameWidth * animData->nowFrame;
+	//
+	int frameX = animData->frameWidth * (animData->nowFrame % animData->columNum);
+	int frameY = animData->frameHeight * (animData->nowFrame / animData->columNum);
 
 	// 画像から表示するコマの部分だけ描画
 	int drawHandle = animData->handle;
@@ -104,8 +110,8 @@ void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX
 
 	int x1 = (int)posX;
 	int y1 = (int)posY;
-	int x2 = (int)(posX + animData->frameWidth * zoom);
-	int y2 = (int)(posY + animData->frameHeight * zoom);
+	int x2 = (int)(posX + animData->frameWidth * zoomX);
+	int y2 = (int)(posY + animData->frameHeight * zoomY);
 
 	// 左右反転
 	if (isTurnX)
@@ -125,7 +131,7 @@ void DrawAnimation(AnimationData* animData, float posX, float posY, bool isTurnX
 
 	DrawRectExtendGraph(
 		x1, y1, x2, y2,
-		frameX, 0,
+		frameX, frameY,
 		animData->frameWidth,
 		animData->frameHeight,
 		drawHandle,

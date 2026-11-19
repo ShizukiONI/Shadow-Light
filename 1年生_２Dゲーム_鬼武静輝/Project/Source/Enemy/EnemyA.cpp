@@ -8,6 +8,8 @@ int g_EnemyMapCount = 0;
 
 int g_EnemyGraph;
 
+void UpdateEnemyAnimation(int enemyIndex);
+
 void InitEnemy()
 {
 	for (int i = 0; i < ENEMY_MAX; i++)
@@ -66,13 +68,13 @@ void LoadEnemyMap()
 
 void LoadEnemy()
 {
+	LoadEnemyMap();
+
 	g_EnemyGraph = LoadGraph("Data/Enemy/Enemy_wallk_test.png");
 
 	g_Enemy[0].animation[ENEMY_ANIM_RUN].handle = LoadGraph("Data/Enemy/Enemy_wallk_test.png");
 	g_Enemy[0].animation[ENEMY_ANIM_RUN].invertedhandle = LoadGraph("Data/Enemy/Enemy_wallk_test.png");
 	GraphFilter(g_Enemy[0].animation[ENEMY_ANIM_RUN].invertedhandle, DX_GRAPH_FILTER_INVERT);
-
-	LoadEnemyMap();
 }
 
 void StartEnemy()
@@ -85,15 +87,19 @@ void StartEnemy()
 
 void UpdateEnemy()
 {
+	for (int i = 0; i < g_EnemyMapCount; i++)
+	{
+		if (!g_Enemy[i].active)
+		{
+			continue;
+		}
+
+		UpdateEnemyAnimation(i);
+	}
 }
 
 void DrawEnemy()
 {
-	if (!g_Enemy->active)
-	{
-		return;
-	}
-
 	CameraData camera = GetCamera();
 
 	for (int i = 0; i < g_EnemyMapCount; i++)
@@ -105,13 +111,35 @@ void DrawEnemy()
 			continue;
 		}
 
-		EnemyAnimationType animType = g_Enemy->playAnim;
+		EnemyAnimationType animType = enemy->playAnim;
 		AnimationData* animData = &g_Enemy->animation[animType];
 
-		float drawX = g_Enemy->pos.x + (ENEMY_WIDTH - animData->frameWidth) / 2.0f;
+		DrawFormatString(10, 50, GetColor(255, 0, 0),
+			"Animation Active: %d", animData->active);
+		DrawFormatString(10, 70, GetColor(255, 0, 0),
+			"Draw Handle: %d", animData->handle);
+
+		float drawX = enemy->pos.x + (MAP_CHIP_WIDTH - ENEMY_WIDTH) / 2.0f;
+		float drawY = enemy->pos.y +(MAP_CHIP_HEIGHT - ENEMY_HEIGHT) / 2.0f;
+
+		DrawFormatString(10, 90, GetColor(255, 0, 0),
+			"Enemy Pos: %.1f, %.1f", enemy->pos.x, enemy->pos.y);
+
+		DrawFormatString(10, 110, GetColor(255, 0, 0),
+			"Draw Pos: %.1f, %.1f",
+			(drawX - camera.pos.x) * CAMERA_ZOOM,
+			(drawY - camera.pos.y) * CAMERA_ZOOM);
+
+		DrawAnimation(animData, (drawX - camera.pos.x) * CAMERA_ZOOM,
+			(enemy->pos.y - camera.pos.y) * CAMERA_ZOOM,
+			enemy->isTurn, false, CAMERA_ZOOM * (ENEMY_WIDTH / 128.0f),CAMERA_ZOOM * (ENEMY_HEIGHT / 128.0f));
 	}
 
-
+	DrawFormatString(10, 10, GetColor(255, 0, 0),
+		"Enemy Count: %d", g_EnemyMapCount);
+	DrawFormatString(10, 30, GetColor(255, 0, 0),
+		"Enemy Handle: %d",
+		g_Enemy[0].animation[ENEMY_ANIM_RUN].handle);
 }
 
 void FinEnemy()
@@ -136,6 +164,8 @@ void StartEnemyAnimation(int enemyIndex, EnemyAnimationType anim)
 	animData->timer = 0;
 
 	StartAnimation(animData, enemy->pos.x, enemy->pos.y, 8, 9, 128, 128,true);
+
+	animData->columNum = 3;
 }
 
 void UpdateEnemyAnimation(int enemyIndex)

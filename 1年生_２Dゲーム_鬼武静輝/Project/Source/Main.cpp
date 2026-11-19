@@ -2,6 +2,7 @@
 #include "Map/MapManager.h"
 #include "../Source/Map/Block.h"
 #include "Input/Input.h"
+#include "../Source/Enemy/EnemyA.h"
 #include "Player/Player.h"
 #include "../Source/World/World.h"
 #include "../Source/Camera/Camera.h"
@@ -17,6 +18,7 @@ void DrawWorldScene(WorldType world)
     // 背景・ブロック・プレイヤーを描画
     DrawWorldBackGround(world);
     DrawMap();
+    DrawEnemy();
     DrawPlayer();
 
     // 元の世界に戻す
@@ -84,14 +86,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstamce, _
     InitMap();
     InitInput();
     InitPlayer();
+    InitEnemy();
     InitWorld();
     InitCamera();
 
     LoadPlayer();
     LoadMap();
+    LoadEnemy();
 
     StartMap();
     StartPlayer();
+    StartEnemy();
 
     SetDrawScreen(DX_SCREEN_BACK);
 
@@ -101,6 +106,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstamce, _
 
         UpdateInput();
         UpdatePlayer();
+        UpdateEnemy();
         UpdateWorld();
         UpdateWorldEffect();
         StepCamera();

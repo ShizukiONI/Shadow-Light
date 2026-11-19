@@ -256,7 +256,7 @@ void DrawPlayer()
 
     DrawAnimation(animData, (drawX - camera.pos.x) * CAMERA_ZOOM ,
         (g_PlayerData.pos.y - camera.pos.y + 8.0f) * CAMERA_ZOOM ,
-        g_PlayerData.isTurn, false,CAMERA_ZOOM);
+        g_PlayerData.isTurn, false,CAMERA_ZOOM,CAMERA_ZOOM);
 
 }
 
