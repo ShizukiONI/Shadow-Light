@@ -1,6 +1,7 @@
 ﻿#include "DxLib.h"
 #include "Collision.h"
 #include "../Player/Player.h"
+#include "../Enemy/EnemyA.h"
 #include "../Map/MapParameter.h"
 #include "../Map/MapChip.h"
 #include "../World/World.h"
@@ -126,4 +127,43 @@ float CheckPlayerCollisionY(float nextY, float playerX)
     }
 
     return nextY;
+}
+
+bool CheckEnemyABlockCollsion(VECTOR enemyApos, int mapX, int mapY)
+{
+    // マップ範囲外なら衝突しない
+    if (mapX < 0 || mapX >= MAP_CHIP_X_NUM ||
+        mapY < 0 || mapY >= MAP_CHIP_Y_NUM)
+    {
+        return false;
+    }
+
+    MapChipData chip = GetMapChipData(mapX, mapY, g_WorldType);
+
+    //現在の世界と違うブロックなら衝突しない
+    if (chip.data == nullptr ||
+        chip.data->world != g_WorldType)
+    {
+        return false;
+    }
+
+    float blockLeft = mapX * MAP_CHIP_WIDTH;
+    float blockTop = mapY * MAP_CHIP_HEIGHT;
+
+    float blockRight = blockLeft + MAP_CHIP_WIDTH;
+    float blockBottom = blockTop + MAP_CHIP_HEIGHT;
+
+    float enemyLeft = enemyApos.x + ()
+
+    return false;
+}
+
+float CheckEnemyACollisiomX(float nexyX, float enemyAY)
+{
+    return 0.0f;
+}
+
+float CheckEnemyACollisionY(float nextY, float enamyAY)
+{
+    return 0.0f;
 }

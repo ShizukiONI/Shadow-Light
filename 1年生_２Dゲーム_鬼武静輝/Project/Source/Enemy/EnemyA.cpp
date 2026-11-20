@@ -114,32 +114,18 @@ void DrawEnemy()
 		EnemyAnimationType animType = enemy->playAnim;
 		AnimationData* animData = &g_Enemy->animation[animType];
 
-		DrawFormatString(10, 50, GetColor(255, 0, 0),
-			"Animation Active: %d", animData->active);
-		DrawFormatString(10, 70, GetColor(255, 0, 0),
-			"Draw Handle: %d", animData->handle);
-
 		float drawX = enemy->pos.x + (MAP_CHIP_WIDTH - ENEMY_WIDTH) / 2.0f;
 		float drawY = enemy->pos.y +(MAP_CHIP_HEIGHT - ENEMY_HEIGHT) / 2.0f;
 
-		DrawFormatString(10, 90, GetColor(255, 0, 0),
-			"Enemy Pos: %.1f, %.1f", enemy->pos.x, enemy->pos.y);
-
-		DrawFormatString(10, 110, GetColor(255, 0, 0),
-			"Draw Pos: %.1f, %.1f",
-			(drawX - camera.pos.x) * CAMERA_ZOOM,
-			(drawY - camera.pos.y) * CAMERA_ZOOM);
-
 		DrawAnimation(animData, (drawX - camera.pos.x) * CAMERA_ZOOM,
-			(enemy->pos.y - camera.pos.y) * CAMERA_ZOOM,
+								(drawY - camera.pos.y) * CAMERA_ZOOM,
 			enemy->isTurn, false, CAMERA_ZOOM * (ENEMY_WIDTH / 128.0f),CAMERA_ZOOM * (ENEMY_HEIGHT / 128.0f));
-	}
 
-	DrawFormatString(10, 10, GetColor(255, 0, 0),
-		"Enemy Count: %d", g_EnemyMapCount);
-	DrawFormatString(10, 30, GetColor(255, 0, 0),
-		"Enemy Handle: %d",
-		g_Enemy[0].animation[ENEMY_ANIM_RUN].handle);
+		float hitX = (drawX + (ENEMY_WIDTH - ENEMY_HIT_WIDTH) / 2.0f - camera.pos.x) * CAMERA_ZOOM;
+		float hitY = (drawY + (ENEMY_HEIGHT - ENEMY_HIT_HEIGHT) / 2.0f - camera.pos.y) * CAMERA_ZOOM;
+
+		DrawBox((int)hitX, (int)hitY, (int)(hitX + ENEMY_HIT_WIDTH * CAMERA_ZOOM), (hitY + ENEMY_HIT_HEIGHT * CAMERA_ZOOM), GetColor(255, 0, 0),FALSE);
+	}
 }
 
 void FinEnemy()

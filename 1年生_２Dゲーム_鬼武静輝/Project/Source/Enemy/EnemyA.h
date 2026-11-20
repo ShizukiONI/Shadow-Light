@@ -7,8 +7,8 @@
 
 #define ENEMY_WIDTH (100)
 #define ENEMY_HEIGHT (100)
-#define ENEMY_HIT_WIDTH (20)
-#define ENEMY_HIT_HEIGHT (20)
+#define ENEMY_HIT_WIDTH (38)
+#define ENEMY_HIT_HEIGHT (38)
 
 enum  EnemyAnimationType
 {
