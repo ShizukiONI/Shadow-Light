@@ -4,6 +4,8 @@
 #include "../Animation/Animation.h"
 #include "../Camera/Camera.h"
 #include "../Collision/Collision.h"
+#include "../Enemy/EnemyA.h"
+#include "../Map/MapChip.h"
 
 
 struct PlayerAnimationParam
@@ -39,12 +41,15 @@ void InitPlayer()
     g_PlayerData.active = false;
     g_PlayerData.isTurn = false;
     g_PlayerData.isAir = true;
+    g_PlayerData.isKnockback = false;
 
     g_PlayerData.pos = VGet(PLAYER_DEFAULT_POS_X, PLAYER_DEFAULT_POS_Y, 0.0f);
 
     g_PlayerData.moveX = 0.0f;
     g_PlayerData.moveY = 0.0f;
     g_PlayerData.speed = 5.0f;
+    g_PlayerData.knockbackX = 0.0f;
+    g_PlayerData.knockbackY = 0.0f;
 
     for (int i = 0; i < PLAYER_ANIM_MAX; i++)
     {
@@ -116,12 +121,49 @@ void StepPlayer()
     }
 
 
-    // X方向の移動先
-    float afterX = g_PlayerData.pos.x + g_PlayerData.moveX;
+    float afterX;
+
+    if (g_PlayerData.isKnockback)
+    {
+        afterX = g_PlayerData.pos.x + g_PlayerData.knockbackX;
+    }
+    else
+    {
+        afterX = g_PlayerData.pos.x + g_PlayerData.moveX;
+    }
 
     afterX = CheckPlayerCollisionX(afterX, g_PlayerData.pos.y);
 
     g_PlayerData.pos.x = afterX;
+
+    afterX = CheckPlayerCollisionX(afterX, g_PlayerData.pos.y);
+
+    g_PlayerData.pos.x = afterX;
+
+    if (g_PlayerData.isKnockback)
+    {
+        if (g_PlayerData.knockbackX > 0.0f)
+        {
+            g_PlayerData.knockbackX -= 0.3f;
+            if (g_PlayerData.knockbackX < 0.0f)
+            {
+                g_PlayerData.knockbackX = 0.0f;
+            }
+        }
+        else if (g_PlayerData.knockbackX < 0.0f)
+        {
+            g_PlayerData.knockbackX += 0.3f;
+            if (g_PlayerData.knockbackX > 0.0f)
+            {
+                g_PlayerData.knockbackX = 0.0f;
+            }
+        }
+    }
+
+    if (g_PlayerData.knockbackX == 0.0f)
+    {
+        g_PlayerData.isKnockback = false;
+    }
 
     // ジャンプ
     if (IsInputKey(KEY_INPUT_SPACE) &&
@@ -165,6 +207,12 @@ void StepPlayer()
     g_PlayerData.pos.y = afterY;
     g_PlayerData.isAir = !onGround;
 
+    if (onGround && g_PlayerData.isKnockback)
+    {
+        g_PlayerData.isKnockback = false;
+        g_PlayerData.knockbackX = 0.0f;
+    }
+
     if (wasAir && onGround)
     {
         StartPlayerAnimation(PLAYER_ANIM_LANDING);
@@ -181,6 +229,11 @@ void StepPlayer()
         g_PlayerData.isAttackHit = false;
         g_PlayerData.attackTimer = 6;
         g_PlayerData.attackcoolTimer = 20;
+    }
+
+    if (g_PlayerData.isAttack && !g_PlayerData.isAttackHit)
+    {
+
     }
 
     //攻撃タイマー
@@ -211,6 +264,28 @@ void UpdatePlayer()
 
     StepPlayer();
 
+    if (CheckPlayerEnemyACollision() && !g_PlayerData.isKnockback)
+    {   
+        int hitEnemyIndex = CheckPlayerEnemyACollision();
+
+        if (hitEnemyIndex != -1 && !g_PlayerData.isKnockback)
+        {
+            // 接触したEnemyAだけ停止
+            g_Enemy[hitEnemyIndex].hitStopTimer = 30;
+
+            g_PlayerData.isKnockback = true;
+
+            // 横方向に反発
+            g_PlayerData.knockbackX =
+                g_PlayerData.isTurn
+                ? PLAYER_KNOCKBACK_X
+                : -PLAYER_KNOCKBACK_X;
+
+            // 上方向に反発
+            g_PlayerData.moveY = PLAYER_KNOCKBACK_Y;
+        }
+    }
+
     UpdatePlayerAnimation();
 }
 
@@ -239,8 +314,6 @@ void DrawPlayer()
         GetColor(255, 0, 0),
         FALSE
     );
-
-    
 
     // アニメーション描画でプレイヤーを描画する
     if (g_PlayerData.playAnim == PLAYER_ANIM_NONE)

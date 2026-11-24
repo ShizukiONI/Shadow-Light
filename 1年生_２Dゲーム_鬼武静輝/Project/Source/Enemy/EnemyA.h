@@ -4,11 +4,15 @@
 
 #define ENEMY_MAX (100)
 #define ENEMY_MAP_MAX (100)
+#define ENEMY_SPEED (2.0f)
+#define ENEMY_MAX_HP (3)
 
 #define ENEMY_WIDTH (100)
 #define ENEMY_HEIGHT (100)
 #define ENEMY_HIT_WIDTH (38)
 #define ENEMY_HIT_HEIGHT (38)
+
+#define ENEMY_GRAVITY (0.5f)
 
 enum  EnemyAnimationType
 {
@@ -22,6 +26,10 @@ struct  EnemyData
 {
 	bool active;
 	VECTOR pos;
+	float velocityX;
+	float velocityY;
+	int hitStopTimer;
+	int hp;
 	bool isTurn;	//左を向いてるか
 	AnimationData animation[ENEMY_ANIM_MAX];	//アニメーション管理
 	EnemyAnimationType playAnim;	//現在のアニメーション

@@ -1,6 +1,7 @@
 ﻿#include "EnemyA.h"
 #include "../Camera/Camera.h"
 #include "../Map/MapChip.h"
+#include "../Collision/Collision.h"
 
 EnemyData g_Enemy[ENEMY_MAX];
 
@@ -17,6 +18,10 @@ void InitEnemy()
 		g_Enemy[i].active = false;
 		g_Enemy[i].isTurn = false;
 		g_Enemy[i].pos = VGet(0.0f, 0.0f, 0.0f);
+		g_Enemy[i].velocityX = 0.0f;
+		g_Enemy[i].velocityY = 0.0f;
+		g_Enemy[i].hitStopTimer = 0.0;
+		g_Enemy[i].hp = ENEMY_MAX_HP;
 
 		for (int j = 0; j < ENEMY_ANIM_MAX; j++)
 		{
@@ -46,6 +51,8 @@ void LoadEnemyMap()
 				g_Enemy[g_EnemyMapCount].pos = VGet(j * MAP_CHIP_WIDTH, i * MAP_CHIP_HEIGHT, 0.0f);
 
 				g_Enemy[g_EnemyMapCount].active = true;
+				g_Enemy[g_EnemyMapCount].hp = ENEMY_MAX_HP;
+				g_Enemy[g_EnemyMapCount].hitStopTimer = 0;
 
 				g_EnemyMapCount++;
 			}
@@ -75,6 +82,10 @@ void LoadEnemy()
 	g_Enemy[0].animation[ENEMY_ANIM_RUN].handle = LoadGraph("Data/Enemy/Enemy_wallk_test.png");
 	g_Enemy[0].animation[ENEMY_ANIM_RUN].invertedhandle = LoadGraph("Data/Enemy/Enemy_wallk_test.png");
 	GraphFilter(g_Enemy[0].animation[ENEMY_ANIM_RUN].invertedhandle, DX_GRAPH_FILTER_INVERT);
+
+	g_Enemy[0].animation[ENEMY_ANIM_IDLE].handle = LoadGraph("Data/Enemy/Enemy_idle.png");
+	g_Enemy[0].animation[ENEMY_ANIM_IDLE].invertedhandle = LoadGraph("Data/Enemy/Enemy_idle.ong");
+	GraphFilter(g_Enemy[0].animation[ENEMY_ANIM_IDLE].invertedhandle, DX_GRAPH_FILTER_INVERT);
 }
 
 void StartEnemy()
@@ -94,6 +105,57 @@ void UpdateEnemy()
 			continue;
 		}
 
+		EnemyData* enemy = &g_Enemy[i];
+
+		// 重力を加算
+		enemy->velocityY += ENEMY_GRAVITY;
+
+		// 接触による停止処理
+		if (enemy->hitStopTimer > 0)
+		{
+			enemy->hitStopTimer--;
+			continue;
+		}
+
+		//移動速度
+		enemy->velocityX = enemy->isTurn ? -ENEMY_SPEED : ENEMY_SPEED;
+
+		// 画像の描画位置を計算
+		float drawX = enemy->pos.x
+			+ (MAP_CHIP_WIDTH - ENEMY_WIDTH) / 2.0f;
+
+		float drawY = enemy->pos.y
+			+ (MAP_CHIP_HEIGHT - ENEMY_HEIGHT) / 2.0f;
+
+		float nextX = drawX + enemy->velocityX;
+
+		float resultX = CheckEnemyACollisiomX(nextX, drawY, drawX);
+
+		enemy->pos.x = resultX - (MAP_CHIP_WIDTH - ENEMY_WIDTH) / 2.0f;
+
+		// 次のY座標を計算
+		float nextY = drawY + enemy->velocityY;
+
+		if (resultX != nextX)
+		{
+			enemy->isTurn = !enemy->isTurn;
+		}
+
+		// 床・天井との衝突判定
+		float resultY = CheckEnemyACollisionY(
+			nextY, drawX, drawY);
+
+		// 座標を更新
+		enemy->pos.y = resultY
+			- (MAP_CHIP_HEIGHT - ENEMY_HEIGHT) / 2.0f;
+
+		// 衝突したら落下速度をリセット
+		if (resultY != nextY)
+		{
+			enemy->velocityY = 0.0f;
+		}
+
+		// アニメーション更新
 		UpdateEnemyAnimation(i);
 	}
 }
@@ -149,7 +211,7 @@ void StartEnemyAnimation(int enemyIndex, EnemyAnimationType anim)
 	animData->nowFrame = 0;
 	animData->timer = 0;
 
-	StartAnimation(animData, enemy->pos.x, enemy->pos.y, 8, 9, 128, 128,true);
+	StartAnimation(animData, enemy->pos.x, enemy->pos.y, 12, 9, 128, 128,true);
 
 	animData->columNum = 3;
 }

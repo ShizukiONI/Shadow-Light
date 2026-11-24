@@ -10,6 +10,11 @@
 #define PLAYER_HIT_WIDTH  (30.0f)
 #define PLAYER_HIT_HEIGHT (48.0f)
 
+#define PLAYER_KNOCKBACK_X (8.0f)
+#define PLAYER_KNOCKBACK_Y ( -6.0f)
+#define PLAYER_ATTACK_POWER (1)
+#define PLAYER_ATTACK_RANGE (40.0f)
+
 enum PlayerAnimationType
 {
 	PLAYER_ANIM_IDLE,
@@ -38,6 +43,9 @@ struct PlayerData
 	bool isAttackHit;
 	int attackTimer;
 	int attackcoolTimer;
+	bool isKnockback;
+	float knockbackX;
+	float knockbackY;
 
 	// アニメーション管理
 	AnimationData animation[PLAYER_ANIM_MAX];
