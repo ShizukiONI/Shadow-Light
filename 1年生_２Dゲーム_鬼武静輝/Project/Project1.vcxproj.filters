@@ -63,6 +63,9 @@
     <ClCompile Include="Source\Enemy\EnemyA.cpp">
       <Filter>Source\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Enemy\EnemyB.cpp">
+      <Filter>Source\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Map\MapChip.h">
@@ -96,6 +99,9 @@
       <Filter>Source\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Enemy\EnemyA.h">
+      <Filter>Source\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enemy\EnemyB.h">
       <Filter>Source\Enemy</Filter>
     </ClInclude>
   </ItemGroup>

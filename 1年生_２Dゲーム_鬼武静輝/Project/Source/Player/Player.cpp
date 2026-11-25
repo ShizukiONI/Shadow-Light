@@ -42,6 +42,7 @@ void InitPlayer()
     g_PlayerData.isTurn = false;
     g_PlayerData.isAir = true;
     g_PlayerData.isKnockback = false;
+    g_PlayerData.hp = PLAYER_MAX_HP;
 
     g_PlayerData.pos = VGet(PLAYER_DEFAULT_POS_X, PLAYER_DEFAULT_POS_Y, 0.0f);
 
@@ -233,7 +234,21 @@ void StepPlayer()
 
     if (g_PlayerData.isAttack && !g_PlayerData.isAttackHit)
     {
+        for (int i = 0; i < g_EnemyMapCount; i++)
+        {
+            if (CheckPlayerAttackEnemyCollision(i))
+            {
+                g_Enemy[i].hp -= PLAYER_ATTACK_POWER;
 
+                if (g_Enemy[i].hp <= 0)
+                {
+                    g_Enemy[i].active = false;
+                }
+
+                g_PlayerData.isAttackHit = true;
+                break;
+            }
+        }
     }
 
     //攻撃タイマー
@@ -262,28 +277,38 @@ void UpdatePlayer()
         return;
     }
 
+    if (g_PlayerData.hp <= 0)
+    {
+        g_PlayerData.active = false;
+        return;
+    }
+
     StepPlayer();
 
-    if (CheckPlayerEnemyACollision() && !g_PlayerData.isKnockback)
-    {   
-        int hitEnemyIndex = CheckPlayerEnemyACollision();
+    int hitEnemyIndex = CheckPlayerEnemyACollision();
 
-        if (hitEnemyIndex != -1 && !g_PlayerData.isKnockback)
+    if (hitEnemyIndex != -1 && !g_PlayerData.isKnockback)
+    {
+        g_PlayerData.hp--;
+
+        if (g_PlayerData.hp < 0)
         {
-            // 接触したEnemyAだけ停止
-            g_Enemy[hitEnemyIndex].hitStopTimer = 30;
-
-            g_PlayerData.isKnockback = true;
-
-            // 横方向に反発
-            g_PlayerData.knockbackX =
-                g_PlayerData.isTurn
-                ? PLAYER_KNOCKBACK_X
-                : -PLAYER_KNOCKBACK_X;
-
-            // 上方向に反発
-            g_PlayerData.moveY = PLAYER_KNOCKBACK_Y;
+            g_PlayerData.hp = 0;
         }
+
+        // 接触したEnemyAだけ停止
+        g_Enemy[hitEnemyIndex].hitStopTimer = 30;
+
+        g_PlayerData.isKnockback = true;
+
+        // 横方向に反発
+        g_PlayerData.knockbackX =
+            g_PlayerData.isTurn
+            ? PLAYER_KNOCKBACK_X
+            : -PLAYER_KNOCKBACK_X;
+
+        // 上方向に反発
+        g_PlayerData.moveY = PLAYER_KNOCKBACK_Y;
     }
 
     UpdatePlayerAnimation();
@@ -331,6 +356,14 @@ void DrawPlayer()
         (g_PlayerData.pos.y - camera.pos.y + 8.0f) * CAMERA_ZOOM ,
         g_PlayerData.isTurn, false,CAMERA_ZOOM,CAMERA_ZOOM);
 
+    float hpX = (g_PlayerData.pos.x + PLAYER_WIDTH / 2.0f
+        - camera.pos.x) * CAMERA_ZOOM;
+
+    float hpY = (g_PlayerData.pos.y - camera.pos.y - 15.0f)
+        * CAMERA_ZOOM;
+
+    DrawFormatString((int)hpX - 25.0f, (int)hpY + 15.0f,
+        GetColor(255, 0, 0), "HP: %d", g_PlayerData.hp);
 }
 
 void FinPlayer()

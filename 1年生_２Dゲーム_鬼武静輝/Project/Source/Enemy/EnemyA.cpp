@@ -183,6 +183,11 @@ void DrawEnemy()
 								(drawY - camera.pos.y) * CAMERA_ZOOM,
 			enemy->isTurn, false, CAMERA_ZOOM * (ENEMY_WIDTH / 128.0f),CAMERA_ZOOM * (ENEMY_HEIGHT / 128.0f));
 
+		float hpX = (drawX - camera.pos.x) * CAMERA_ZOOM;
+		float hpY = (drawY - camera.pos.y) * CAMERA_ZOOM;
+
+		DrawFormatString((int)hpX + 50.0f, (int)hpY + 22.0f, GetColor(255, 0, 0), "HP:%d", enemy->hp);
+
 		float hitX = (drawX + (ENEMY_WIDTH - ENEMY_HIT_WIDTH) / 2.0f - camera.pos.x) * CAMERA_ZOOM;
 		float hitY = (drawY + (ENEMY_HEIGHT - ENEMY_HIT_HEIGHT) / 2.0f - camera.pos.y) * CAMERA_ZOOM;
 

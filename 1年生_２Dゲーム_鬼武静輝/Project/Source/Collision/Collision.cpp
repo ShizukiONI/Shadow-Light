@@ -135,7 +135,7 @@ int CheckPlayerEnemyACollision()
 
     if (!player.active)
     {
-        return false;
+        return -1;
     }
 
     float playerLeft = player.pos.x + (PLAYER_WIDTH - PLAYER_HIT_WIDTH) / 2.0f;
@@ -186,7 +186,28 @@ bool CheckPlayerAttackEnemyCollision(int enemyIndex)
 
     float playerLeft = player.pos.x + (PLAYER_WIDTH - PLAYER_HIT_WIDTH) / 2.0f;
     float playerTop = player.pos.y + 8.0f + (PLAYER_HEIGHT - PLAYER_HIT_HEIGHT) / 2.0f;
+    float playerRight = playerLeft + PLAYER_HIT_WIDTH;
+    float playerBottom = playerTop + PLAYER_HIT_HEIGHT;
 
+    float attackLeft = 0.0f;
+    float attackRight = 0.0f;
+
+    if (player.isTurn)
+    {
+        attackLeft = playerLeft - PLAYER_ATTACK_RANGE;
+        attackRight = playerLeft;
+    }
+    else
+    {
+        attackRight = playerRight + PLAYER_ATTACK_RANGE;
+    }
+
+    float enemyLeft = enemy->pos.x + (MAP_CHIP_WIDTH - ENEMY_WIDTH) / 2.0f + (ENEMY_WIDTH - ENEMY_HIT_WIDTH) / 2.0f;
+    float enemyTop = enemy->pos.y + (MAP_CHIP_HEIGHT - ENEMY_HEIGHT) / 2.0f + (ENEMY_HEIGHT - ENEMY_HIT_HEIGHT) / 2.0f;
+    float enemyRight = enemyLeft + ENEMY_HIT_WIDTH;
+    float enemyBottom = enemyTop + ENEMY_HIT_HEIGHT;
+
+    return attackRight > enemyLeft && attackLeft < enemyRight && playerBottom > enemyTop && playerTop < enemyBottom;
 
     return false;
 }

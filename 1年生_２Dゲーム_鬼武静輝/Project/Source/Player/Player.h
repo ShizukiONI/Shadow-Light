@@ -15,6 +15,8 @@
 #define PLAYER_ATTACK_POWER (1)
 #define PLAYER_ATTACK_RANGE (40.0f)
 
+#define PLAYER_MAX_HP (5)
+
 enum PlayerAnimationType
 {
 	PLAYER_ANIM_IDLE,
@@ -37,6 +39,7 @@ struct PlayerData
 	float moveX;	//X移動量
 	float moveY;	//Y移動量
 	float speed;	//移動速度
+	int hp;
 
 	//攻撃
 	bool isAttack;
