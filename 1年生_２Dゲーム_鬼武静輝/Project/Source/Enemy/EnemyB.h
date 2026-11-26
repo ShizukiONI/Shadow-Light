@@ -14,25 +14,25 @@
 
 enum EnemyBAnimationType
 {
-	ENEMY_B_ANIM_IDLE,
-	ENEMY_B_ANIM_RUN,
-	ENEMY_B_ANIM_MAX,
-	ENEMY_B_ANIM_NONE = -1
+    ENEMY_B_ANIM_IDLE,
+    ENEMY_B_ANIM_MOVE,
+    ENEMY_B_ANIM_ATTACK,
+    ENEMY_B_ANIM_MAX,
+    ENEMY_B_ANIM_NONE = -1
 };
 
-struct  EnemyBdata
+struct EnemyBdata
 {
-	int hp;
-	int hitStopTimer;
-	bool isTurn;
-	bool active;
-	VECTOR pos;
-	float velocityX;
-	float velocityY;
+    int hp;
+    int hitStopTimer;
+    bool isTurn;
+    bool active;
+    VECTOR pos;
+    float velocityX;
+    float velocityY;
 
-	AnimationData animation[ENEMY_B_ANIM_MAX];
-	EnemyBAnimationType playAnim;
-
+    AnimationData animation[ENEMY_B_ANIM_MAX];
+    EnemyBAnimationType playAnim;
 };
 
 extern EnemyBdata g_EnemyB[ENEMY_B_MAX];
@@ -45,4 +45,4 @@ void StartEnemyB();
 void UpdateEnemyB();
 void DrawEnemyB();
 void FinEnemyB();
-void StartEnemyBanimation(int enemyIndex, EnemyBAnimationType anim);
+void StartEnemyBAnimation(int enemyIndex, EnemyBAnimationType anim);
